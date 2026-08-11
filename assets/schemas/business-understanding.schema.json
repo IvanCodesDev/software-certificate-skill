@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Evidence-backed business understanding",
+  "type": "object",
+  "required": ["software_purpose", "target_users", "industry_domain", "development_purpose", "runtime_platform", "runtime_support", "main_functions", "technical_features", "capabilities"],
+  "properties": {
+    "software_classification": {"type": "string"},
+    "software_purpose": {"type": "string", "minLength": 2},
+    "target_users": {"type": "string", "minLength": 2},
+    "industry_domain": {"type": "string", "minLength": 2},
+    "development_purpose": {"type": "string", "minLength": 2},
+    "development_environment": {"type": "string"},
+    "development_tools": {"type": "string"},
+    "runtime_platform": {"type": "string", "minLength": 2},
+    "runtime_support": {"type": "string", "minLength": 2},
+    "main_functions": {"type": "string", "minLength": 20},
+    "technical_features": {"type": "string", "minLength": 2},
+    "startup": {"type": "string"},
+    "interface_structure": {"type": "string"},
+    "workflow_summary": {"type": "string"},
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "purpose", "entry", "visible_elements", "steps", "success_feedback", "error_feedback", "evidence_ids"],
+        "properties": {
+          "id": {"type": "string"}, "name": {"type": "string"},
+          "purpose": {"type": "string"}, "actor": {"type": "string"},
+          "entry": {"type": "string"}, "visible_elements": {"type": "string"},
+          "steps": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+          "restrictions": {"type": "array", "items": {"type": "string"}},
+          "success_feedback": {"type": "string"}, "error_feedback": {"type": "string"},
+          "evidence_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+          "screenshot_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "faq": {"type": "array", "items": {"type": "object"}},
+    "terms": {"type": "array", "items": {"type": "object"}},
+    "confirmed_against_runtime": {"type": "boolean"},
+    "generated_from_evidence": {"type": "boolean"}
+  },
+  "additionalProperties": true
+}

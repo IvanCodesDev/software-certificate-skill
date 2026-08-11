@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-11T12:12:25+08:00",
+  "project": {
+    "root": "${DEMO_PROJECT_ROOT}",
+    "name": "project"
+  },
+  "nodes": [
+    {
+      "id": "FILE-7ae45ad102ea",
+      "type": "config_file",
+      "path": "package.json",
+      "sha256": "232a03d9456b05343018c38b49dc0cefd8c3e5cabc26ada2bfca31a2ecbb3122",
+      "bytes": 172,
+      "extension": ".json",
+      "language": "configuration",
+      "line_count": 10
+    },
+    {
+      "id": "FILE-c72a907ac323",
+      "type": "source_file",
+      "path": "src/app.js",
+      "sha256": "4d21c9797dadd297aee902a22579e6031cf6bc9b9e6a3009d02c5d5fd94f2d74",
+      "bytes": 16105,
+      "extension": ".js",
+      "language": "JavaScript",
+      "line_count": 220,
+      "ui_title_candidates": []
+    },
+    {
+      "id": "FILE-1328d888122e",
+      "type": "config_file",
+      "path": "软件著作权申请资料/.工作区/environment.json",
+      "sha256": "40885ccf71ed38ad589a133f8692a47f8bcd23a16bdbe11200ccc000a323c1b6",
+      "bytes": 339,
+      "extension": ".json",
+      "language": "configuration",
+      "line_count": 7
+    },
+    {
+      "id": "FILE-a75e82cdc9c1",
+      "type": "config_file",
+      "path": "软件著作权申请资料/.工作区/workflow-state.json",
+      "sha256": "e5f8b8b195c990114da244400f399abefe99a840429a59248d41ac6f37a4e548",
+      "bytes": 2557,
+      "extension": ".json",
+      "language": "configuration",
+      "line_count": 87
+    }
+  ],
+  "edges": [],
+  "summary": {
+    "source_lines": 324,
+    "config_file": 3,
+    "source_file": 1,
+    "files_indexed": 4,
+    "capability_candidates": 0,
+    "routes": 0,
+    "warning": "Capability candidates are investigation leads until confirmed against runtime behavior."
+  }
+}

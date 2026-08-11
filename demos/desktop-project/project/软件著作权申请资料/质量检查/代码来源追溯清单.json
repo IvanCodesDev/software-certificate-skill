@@ -1,0 +1,1680 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-11T12:13:30+08:00",
+  "project_root": "${DEMO_PROJECT_ROOT}",
+  "manifest": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\source-manifest.json",
+  "manifest_review": {
+    "confirmed_by": "automatic evidence-ranked selector",
+    "confirmed_at": "2026-08-11T12:13:30+08:00",
+    "open_source_boundary_checked": true,
+    "generated_code_boundary_checked": true,
+    "secret_scan_checked": true,
+    "requires_user_confirmation": false
+  },
+  "ordered_files_confirmed": true,
+  "selection_policy": {
+    "scope": "申请软件自身且与主要功能直接相关的完整源文件",
+    "unit": "whole_source_file",
+    "mode": "automatic_evidence_ranked",
+    "preferred_layers": [
+      "entry",
+      "route",
+      "controller",
+      "page",
+      "service",
+      "state",
+      "domain",
+      "algorithm"
+    ],
+    "rationale": "综合项目结构、业务层次、真实源码行数、敏感信息和重复内容自动排序"
+  },
+  "file_decisions": [
+    {
+      "path": "src/Program.cs",
+      "role": "entry",
+      "evidence_ids": [],
+      "reason": "application_entry",
+      "score": 100,
+      "sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b"
+    }
+  ],
+  "lines_per_page": 50,
+  "max_chars": 88,
+  "full_line_count": 222,
+  "full_page_count": 5,
+  "filing_page_count": 5,
+  "selection": "all_under_60_pages",
+  "filing_groups": {
+    "all": {
+      "logical_source_pages": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "page_count": 5,
+      "first_output_line": 1,
+      "last_output_line": 222
+    }
+  },
+  "files": [
+    {
+      "path": "src/Program.cs",
+      "sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "original_lines": 222,
+      "output_start_line": 1,
+      "output_end_line": 222
+    }
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "start_output_line": 1,
+      "end_output_line": 50,
+      "line_count": 50
+    },
+    {
+      "page": 2,
+      "start_output_line": 51,
+      "end_output_line": 100,
+      "line_count": 50
+    },
+    {
+      "page": 3,
+      "start_output_line": 101,
+      "end_output_line": 150,
+      "line_count": 50
+    },
+    {
+      "page": 4,
+      "start_output_line": 151,
+      "end_output_line": 200,
+      "line_count": 50
+    },
+    {
+      "page": 5,
+      "start_output_line": 201,
+      "end_output_line": 222,
+      "line_count": 22
+    }
+  ],
+  "line_mapping": [
+    {
+      "output_line": 1,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 1,
+      "segment": 1
+    },
+    {
+      "output_line": 2,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 2,
+      "segment": 1
+    },
+    {
+      "output_line": 3,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 3,
+      "segment": 1
+    },
+    {
+      "output_line": 4,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 4,
+      "segment": 1
+    },
+    {
+      "output_line": 5,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 5,
+      "segment": 1
+    },
+    {
+      "output_line": 6,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 6,
+      "segment": 1
+    },
+    {
+      "output_line": 7,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 7,
+      "segment": 1
+    },
+    {
+      "output_line": 8,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 8,
+      "segment": 1
+    },
+    {
+      "output_line": 9,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 9,
+      "segment": 1
+    },
+    {
+      "output_line": 10,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 10,
+      "segment": 1
+    },
+    {
+      "output_line": 11,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 11,
+      "segment": 1
+    },
+    {
+      "output_line": 12,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 12,
+      "segment": 1
+    },
+    {
+      "output_line": 13,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 13,
+      "segment": 1
+    },
+    {
+      "output_line": 14,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 14,
+      "segment": 1
+    },
+    {
+      "output_line": 15,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 15,
+      "segment": 1
+    },
+    {
+      "output_line": 16,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 16,
+      "segment": 1
+    },
+    {
+      "output_line": 17,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 17,
+      "segment": 1
+    },
+    {
+      "output_line": 18,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 18,
+      "segment": 1
+    },
+    {
+      "output_line": 19,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 19,
+      "segment": 1
+    },
+    {
+      "output_line": 20,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 20,
+      "segment": 1
+    },
+    {
+      "output_line": 21,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 21,
+      "segment": 1
+    },
+    {
+      "output_line": 22,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 22,
+      "segment": 1
+    },
+    {
+      "output_line": 23,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 23,
+      "segment": 1
+    },
+    {
+      "output_line": 24,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 24,
+      "segment": 1
+    },
+    {
+      "output_line": 25,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 25,
+      "segment": 1
+    },
+    {
+      "output_line": 26,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 26,
+      "segment": 1
+    },
+    {
+      "output_line": 27,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 27,
+      "segment": 1
+    },
+    {
+      "output_line": 28,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 28,
+      "segment": 1
+    },
+    {
+      "output_line": 29,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 29,
+      "segment": 1
+    },
+    {
+      "output_line": 30,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 30,
+      "segment": 1
+    },
+    {
+      "output_line": 31,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 31,
+      "segment": 1
+    },
+    {
+      "output_line": 32,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 32,
+      "segment": 1
+    },
+    {
+      "output_line": 33,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 33,
+      "segment": 1
+    },
+    {
+      "output_line": 34,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 34,
+      "segment": 1
+    },
+    {
+      "output_line": 35,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 35,
+      "segment": 1
+    },
+    {
+      "output_line": 36,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 36,
+      "segment": 1
+    },
+    {
+      "output_line": 37,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 37,
+      "segment": 1
+    },
+    {
+      "output_line": 38,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 38,
+      "segment": 1
+    },
+    {
+      "output_line": 39,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 39,
+      "segment": 1
+    },
+    {
+      "output_line": 40,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 40,
+      "segment": 1
+    },
+    {
+      "output_line": 41,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 41,
+      "segment": 1
+    },
+    {
+      "output_line": 42,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 42,
+      "segment": 1
+    },
+    {
+      "output_line": 43,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 43,
+      "segment": 1
+    },
+    {
+      "output_line": 44,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 44,
+      "segment": 1
+    },
+    {
+      "output_line": 45,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 45,
+      "segment": 1
+    },
+    {
+      "output_line": 46,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 46,
+      "segment": 1
+    },
+    {
+      "output_line": 47,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 47,
+      "segment": 1
+    },
+    {
+      "output_line": 48,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 48,
+      "segment": 1
+    },
+    {
+      "output_line": 49,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 49,
+      "segment": 1
+    },
+    {
+      "output_line": 50,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 50,
+      "segment": 1
+    },
+    {
+      "output_line": 51,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 51,
+      "segment": 1
+    },
+    {
+      "output_line": 52,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 52,
+      "segment": 1
+    },
+    {
+      "output_line": 53,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 53,
+      "segment": 1
+    },
+    {
+      "output_line": 54,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 54,
+      "segment": 1
+    },
+    {
+      "output_line": 55,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 55,
+      "segment": 1
+    },
+    {
+      "output_line": 56,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 56,
+      "segment": 1
+    },
+    {
+      "output_line": 57,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 57,
+      "segment": 1
+    },
+    {
+      "output_line": 58,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 58,
+      "segment": 1
+    },
+    {
+      "output_line": 59,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 59,
+      "segment": 1
+    },
+    {
+      "output_line": 60,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 60,
+      "segment": 1
+    },
+    {
+      "output_line": 61,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 61,
+      "segment": 1
+    },
+    {
+      "output_line": 62,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 62,
+      "segment": 1
+    },
+    {
+      "output_line": 63,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 63,
+      "segment": 1
+    },
+    {
+      "output_line": 64,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 64,
+      "segment": 1
+    },
+    {
+      "output_line": 65,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 65,
+      "segment": 1
+    },
+    {
+      "output_line": 66,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 66,
+      "segment": 1
+    },
+    {
+      "output_line": 67,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 67,
+      "segment": 1
+    },
+    {
+      "output_line": 68,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 68,
+      "segment": 1
+    },
+    {
+      "output_line": 69,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 69,
+      "segment": 1
+    },
+    {
+      "output_line": 70,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 70,
+      "segment": 1
+    },
+    {
+      "output_line": 71,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 71,
+      "segment": 1
+    },
+    {
+      "output_line": 72,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 72,
+      "segment": 1
+    },
+    {
+      "output_line": 73,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 73,
+      "segment": 1
+    },
+    {
+      "output_line": 74,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 74,
+      "segment": 1
+    },
+    {
+      "output_line": 75,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 75,
+      "segment": 1
+    },
+    {
+      "output_line": 76,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 76,
+      "segment": 1
+    },
+    {
+      "output_line": 77,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 77,
+      "segment": 1
+    },
+    {
+      "output_line": 78,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 78,
+      "segment": 1
+    },
+    {
+      "output_line": 79,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 79,
+      "segment": 1
+    },
+    {
+      "output_line": 80,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 80,
+      "segment": 1
+    },
+    {
+      "output_line": 81,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 81,
+      "segment": 1
+    },
+    {
+      "output_line": 82,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 82,
+      "segment": 1
+    },
+    {
+      "output_line": 83,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 83,
+      "segment": 1
+    },
+    {
+      "output_line": 84,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 84,
+      "segment": 1
+    },
+    {
+      "output_line": 85,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 85,
+      "segment": 1
+    },
+    {
+      "output_line": 86,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 86,
+      "segment": 1
+    },
+    {
+      "output_line": 87,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 87,
+      "segment": 1
+    },
+    {
+      "output_line": 88,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 88,
+      "segment": 1
+    },
+    {
+      "output_line": 89,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 89,
+      "segment": 1
+    },
+    {
+      "output_line": 90,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 90,
+      "segment": 1
+    },
+    {
+      "output_line": 91,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 91,
+      "segment": 1
+    },
+    {
+      "output_line": 92,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 92,
+      "segment": 1
+    },
+    {
+      "output_line": 93,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 93,
+      "segment": 1
+    },
+    {
+      "output_line": 94,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 94,
+      "segment": 1
+    },
+    {
+      "output_line": 95,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 95,
+      "segment": 1
+    },
+    {
+      "output_line": 96,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 96,
+      "segment": 1
+    },
+    {
+      "output_line": 97,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 97,
+      "segment": 1
+    },
+    {
+      "output_line": 98,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 98,
+      "segment": 1
+    },
+    {
+      "output_line": 99,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 99,
+      "segment": 1
+    },
+    {
+      "output_line": 100,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 100,
+      "segment": 1
+    },
+    {
+      "output_line": 101,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 101,
+      "segment": 1
+    },
+    {
+      "output_line": 102,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 102,
+      "segment": 1
+    },
+    {
+      "output_line": 103,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 103,
+      "segment": 1
+    },
+    {
+      "output_line": 104,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 104,
+      "segment": 1
+    },
+    {
+      "output_line": 105,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 105,
+      "segment": 1
+    },
+    {
+      "output_line": 106,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 106,
+      "segment": 1
+    },
+    {
+      "output_line": 107,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 107,
+      "segment": 1
+    },
+    {
+      "output_line": 108,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 108,
+      "segment": 1
+    },
+    {
+      "output_line": 109,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 109,
+      "segment": 1
+    },
+    {
+      "output_line": 110,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 110,
+      "segment": 1
+    },
+    {
+      "output_line": 111,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 111,
+      "segment": 1
+    },
+    {
+      "output_line": 112,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 112,
+      "segment": 1
+    },
+    {
+      "output_line": 113,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 113,
+      "segment": 1
+    },
+    {
+      "output_line": 114,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 114,
+      "segment": 1
+    },
+    {
+      "output_line": 115,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 115,
+      "segment": 1
+    },
+    {
+      "output_line": 116,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 116,
+      "segment": 1
+    },
+    {
+      "output_line": 117,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 117,
+      "segment": 1
+    },
+    {
+      "output_line": 118,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 118,
+      "segment": 1
+    },
+    {
+      "output_line": 119,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 119,
+      "segment": 1
+    },
+    {
+      "output_line": 120,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 120,
+      "segment": 1
+    },
+    {
+      "output_line": 121,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 121,
+      "segment": 1
+    },
+    {
+      "output_line": 122,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 122,
+      "segment": 1
+    },
+    {
+      "output_line": 123,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 123,
+      "segment": 1
+    },
+    {
+      "output_line": 124,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 124,
+      "segment": 1
+    },
+    {
+      "output_line": 125,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 125,
+      "segment": 1
+    },
+    {
+      "output_line": 126,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 126,
+      "segment": 1
+    },
+    {
+      "output_line": 127,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 127,
+      "segment": 1
+    },
+    {
+      "output_line": 128,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 128,
+      "segment": 1
+    },
+    {
+      "output_line": 129,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 129,
+      "segment": 1
+    },
+    {
+      "output_line": 130,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 130,
+      "segment": 1
+    },
+    {
+      "output_line": 131,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 131,
+      "segment": 1
+    },
+    {
+      "output_line": 132,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 132,
+      "segment": 1
+    },
+    {
+      "output_line": 133,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 133,
+      "segment": 1
+    },
+    {
+      "output_line": 134,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 134,
+      "segment": 1
+    },
+    {
+      "output_line": 135,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 135,
+      "segment": 1
+    },
+    {
+      "output_line": 136,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 136,
+      "segment": 1
+    },
+    {
+      "output_line": 137,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 137,
+      "segment": 1
+    },
+    {
+      "output_line": 138,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 138,
+      "segment": 1
+    },
+    {
+      "output_line": 139,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 139,
+      "segment": 1
+    },
+    {
+      "output_line": 140,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 140,
+      "segment": 1
+    },
+    {
+      "output_line": 141,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 141,
+      "segment": 1
+    },
+    {
+      "output_line": 142,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 142,
+      "segment": 1
+    },
+    {
+      "output_line": 143,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 143,
+      "segment": 1
+    },
+    {
+      "output_line": 144,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 144,
+      "segment": 1
+    },
+    {
+      "output_line": 145,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 145,
+      "segment": 1
+    },
+    {
+      "output_line": 146,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 146,
+      "segment": 1
+    },
+    {
+      "output_line": 147,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 147,
+      "segment": 1
+    },
+    {
+      "output_line": 148,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 148,
+      "segment": 1
+    },
+    {
+      "output_line": 149,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 149,
+      "segment": 1
+    },
+    {
+      "output_line": 150,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 150,
+      "segment": 1
+    },
+    {
+      "output_line": 151,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 151,
+      "segment": 1
+    },
+    {
+      "output_line": 152,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 152,
+      "segment": 1
+    },
+    {
+      "output_line": 153,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 153,
+      "segment": 1
+    },
+    {
+      "output_line": 154,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 154,
+      "segment": 1
+    },
+    {
+      "output_line": 155,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 155,
+      "segment": 1
+    },
+    {
+      "output_line": 156,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 156,
+      "segment": 1
+    },
+    {
+      "output_line": 157,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 157,
+      "segment": 1
+    },
+    {
+      "output_line": 158,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 158,
+      "segment": 1
+    },
+    {
+      "output_line": 159,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 159,
+      "segment": 1
+    },
+    {
+      "output_line": 160,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 160,
+      "segment": 1
+    },
+    {
+      "output_line": 161,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 161,
+      "segment": 1
+    },
+    {
+      "output_line": 162,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 162,
+      "segment": 1
+    },
+    {
+      "output_line": 163,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 163,
+      "segment": 1
+    },
+    {
+      "output_line": 164,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 164,
+      "segment": 1
+    },
+    {
+      "output_line": 165,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 165,
+      "segment": 1
+    },
+    {
+      "output_line": 166,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 166,
+      "segment": 1
+    },
+    {
+      "output_line": 167,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 167,
+      "segment": 1
+    },
+    {
+      "output_line": 168,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 168,
+      "segment": 1
+    },
+    {
+      "output_line": 169,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 169,
+      "segment": 1
+    },
+    {
+      "output_line": 170,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 170,
+      "segment": 1
+    },
+    {
+      "output_line": 171,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 171,
+      "segment": 1
+    },
+    {
+      "output_line": 172,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 172,
+      "segment": 1
+    },
+    {
+      "output_line": 173,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 173,
+      "segment": 1
+    },
+    {
+      "output_line": 174,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 174,
+      "segment": 1
+    },
+    {
+      "output_line": 175,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 175,
+      "segment": 1
+    },
+    {
+      "output_line": 176,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 176,
+      "segment": 1
+    },
+    {
+      "output_line": 177,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 177,
+      "segment": 1
+    },
+    {
+      "output_line": 178,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 178,
+      "segment": 1
+    },
+    {
+      "output_line": 179,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 179,
+      "segment": 1
+    },
+    {
+      "output_line": 180,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 180,
+      "segment": 1
+    },
+    {
+      "output_line": 181,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 181,
+      "segment": 1
+    },
+    {
+      "output_line": 182,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 182,
+      "segment": 1
+    },
+    {
+      "output_line": 183,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 183,
+      "segment": 1
+    },
+    {
+      "output_line": 184,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 184,
+      "segment": 1
+    },
+    {
+      "output_line": 185,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 185,
+      "segment": 1
+    },
+    {
+      "output_line": 186,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 186,
+      "segment": 1
+    },
+    {
+      "output_line": 187,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 187,
+      "segment": 1
+    },
+    {
+      "output_line": 188,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 188,
+      "segment": 1
+    },
+    {
+      "output_line": 189,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 189,
+      "segment": 1
+    },
+    {
+      "output_line": 190,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 190,
+      "segment": 1
+    },
+    {
+      "output_line": 191,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 191,
+      "segment": 1
+    },
+    {
+      "output_line": 192,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 192,
+      "segment": 1
+    },
+    {
+      "output_line": 193,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 193,
+      "segment": 1
+    },
+    {
+      "output_line": 194,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 194,
+      "segment": 1
+    },
+    {
+      "output_line": 195,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 195,
+      "segment": 1
+    },
+    {
+      "output_line": 196,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 196,
+      "segment": 1
+    },
+    {
+      "output_line": 197,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 197,
+      "segment": 1
+    },
+    {
+      "output_line": 198,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 198,
+      "segment": 1
+    },
+    {
+      "output_line": 199,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 199,
+      "segment": 1
+    },
+    {
+      "output_line": 200,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 200,
+      "segment": 1
+    },
+    {
+      "output_line": 201,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 201,
+      "segment": 1
+    },
+    {
+      "output_line": 202,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 202,
+      "segment": 1
+    },
+    {
+      "output_line": 203,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 203,
+      "segment": 1
+    },
+    {
+      "output_line": 204,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 204,
+      "segment": 1
+    },
+    {
+      "output_line": 205,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 205,
+      "segment": 1
+    },
+    {
+      "output_line": 206,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 206,
+      "segment": 1
+    },
+    {
+      "output_line": 207,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 207,
+      "segment": 1
+    },
+    {
+      "output_line": 208,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 208,
+      "segment": 1
+    },
+    {
+      "output_line": 209,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 209,
+      "segment": 1
+    },
+    {
+      "output_line": 210,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 210,
+      "segment": 1
+    },
+    {
+      "output_line": 211,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 211,
+      "segment": 1
+    },
+    {
+      "output_line": 212,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 212,
+      "segment": 1
+    },
+    {
+      "output_line": 213,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 213,
+      "segment": 1
+    },
+    {
+      "output_line": 214,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 214,
+      "segment": 1
+    },
+    {
+      "output_line": 215,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 215,
+      "segment": 1
+    },
+    {
+      "output_line": 216,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 216,
+      "segment": 1
+    },
+    {
+      "output_line": 217,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 217,
+      "segment": 1
+    },
+    {
+      "output_line": 218,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 218,
+      "segment": 1
+    },
+    {
+      "output_line": 219,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 219,
+      "segment": 1
+    },
+    {
+      "output_line": 220,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 220,
+      "segment": 1
+    },
+    {
+      "output_line": 221,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 221,
+      "segment": 1
+    },
+    {
+      "output_line": 222,
+      "file": "src/Program.cs",
+      "file_sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b",
+      "source_line": 222,
+      "segment": 1
+    }
+  ],
+  "layout": {
+    "font_size_pt": 8.5,
+    "line_spacing_pt": 10.0
+  },
+  "artifacts": {
+    "full_txt": {
+      "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\source-full.txt",
+      "sha256": "d7ca6ecf531f5000ea4515856c325794ca28a96f0f89669f9dcb5dd61035cab2"
+    },
+    "full_docx": {
+      "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\source-full.docx",
+      "sha256": "83551231d8fcf046d4c8223a02ee82aaf4c087323529fd791965000cafa79e8e"
+    },
+    "all_txt": {
+      "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\source-all.txt",
+      "sha256": "d7ca6ecf531f5000ea4515856c325794ca28a96f0f89669f9dcb5dd61035cab2"
+    },
+    "all_docx": {
+      "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\source-all.docx",
+      "sha256": "83551231d8fcf046d4c8223a02ee82aaf4c087323529fd791965000cafa79e8e"
+    }
+  }
+}

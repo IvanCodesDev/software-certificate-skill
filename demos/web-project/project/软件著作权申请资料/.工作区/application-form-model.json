@@ -1,0 +1,319 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-11T12:12:58+08:00",
+  "rules_snapshot": "2026-08-11",
+  "fields": [
+    {
+      "name": "软件全称",
+      "value": "脱敏工单协同管理系统",
+      "required": true,
+      "conditional": null,
+      "characters": 10,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "软件简称",
+      "value": "演示工单协同管理系统",
+      "required": false,
+      "conditional": null,
+      "characters": 10,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "版本号",
+      "value": "V1.0",
+      "required": true,
+      "conditional": null,
+      "characters": 4,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "著作权人类型",
+      "value": "法人",
+      "required": true,
+      "conditional": null,
+      "characters": 2,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "著作权人名称",
+      "value": "演示软件研究中心",
+      "required": true,
+      "conditional": null,
+      "characters": 8,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "证件类型",
+      "value": "演示标识",
+      "required": true,
+      "conditional": null,
+      "characters": 4,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "证件号码",
+      "value": "DEMO-WEB-PROJECT-ONLY",
+      "required": true,
+      "conditional": null,
+      "characters": 21,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "开发完成日期",
+      "value": "2026-08-01",
+      "required": true,
+      "conditional": null,
+      "characters": 10,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "开发方式",
+      "value": "单独开发",
+      "required": true,
+      "conditional": null,
+      "characters": 4,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "软件说明",
+      "value": "原创",
+      "required": true,
+      "conditional": null,
+      "characters": 2,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "发表状态",
+      "value": "未发表",
+      "required": true,
+      "conditional": null,
+      "characters": 3,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "首次发表日期",
+      "value": "",
+      "required": false,
+      "conditional": "仅已发表软件填写",
+      "characters": 0,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "权利取得方式",
+      "value": "原始取得",
+      "required": true,
+      "conditional": null,
+      "characters": 4,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "权利范围",
+      "value": "全部权利",
+      "required": true,
+      "conditional": null,
+      "characters": 4,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "部分权利说明",
+      "value": "",
+      "required": false,
+      "conditional": "仅部分权利填写",
+      "characters": 0,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "权属补充说明",
+      "value": "完全合成的开源演示事实，不用于真实申请。",
+      "required": false,
+      "conditional": null,
+      "characters": 20,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "软件分类",
+      "value": "Web管理系统",
+      "required": true,
+      "conditional": null,
+      "characters": 7,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "软件用途",
+      "value": "帮助内部服务人员查看、筛选并处理脱敏工单记录。",
+      "required": true,
+      "conditional": null,
+      "characters": 23,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "目标用户",
+      "value": "需要完成该项业务的内部工作人员与系统维护人员",
+      "required": true,
+      "conditional": null,
+      "characters": 22,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "面向行业",
+      "value": "通用软件工具",
+      "required": true,
+      "conditional": null,
+      "characters": 6,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "开发环境",
+      "value": "Windows、macOS或Linux开发环境",
+      "required": true,
+      "conditional": null,
+      "characters": 23,
+      "maximum": 500,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "开发工具",
+      "value": "Python 3.10+及项目对应编译运行工具",
+      "required": true,
+      "conditional": null,
+      "characters": 23,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "运行平台",
+      "value": "Web管理系统",
+      "required": true,
+      "conditional": null,
+      "characters": 7,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "运行支撑环境",
+      "value": "具备文件读写权限的常规计算机环境",
+      "required": true,
+      "conditional": null,
+      "characters": 16,
+      "maximum": 500,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "编程语言",
+      "value": "JavaScript",
+      "required": true,
+      "conditional": null,
+      "characters": 10,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "源程序量",
+      "value": "220 行",
+      "required": true,
+      "conditional": null,
+      "characters": 5,
+      "maximum": null,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "开发目的",
+      "value": "帮助内部服务人员查看、筛选并处理脱敏工单记录。",
+      "required": true,
+      "conditional": null,
+      "characters": 23,
+      "maximum": 500,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "面向领域",
+      "value": "通用软件工具",
+      "required": true,
+      "conditional": null,
+      "characters": 6,
+      "maximum": 500,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "主要功能",
+      "value": "软件围绕帮助内部服务人员查看、筛选并处理脱敏工单记录。提供统一入口。使用者可从浏览器首页的‘工单列表’菜单进入，查看筛选区、工单表格、状态列和详情按钮，按照明确步骤完成输入、执行与结果核验。系统对必填项、输入路径和操作状态进行校验；成功时给出可见反馈，失败时保留原因并允许修正后重试。操作记录使用脱敏标识，演示数据不包含真实个人信息。该演示只描述源码与截图中能够核验的能力，用于展示申请材料如何保持表单、手册、截图与代码一致。",
+      "required": true,
+      "conditional": null,
+      "characters": 213,
+      "maximum": 1300,
+      "compressed": false,
+      "status": "pass"
+    },
+    {
+      "name": "技术特点",
+      "value": "采用分层输入校验、确定性结果输出和明确错误状态，核心实现均可由源码行号追溯。",
+      "required": true,
+      "conditional": null,
+      "characters": 38,
+      "maximum": 500,
+      "compressed": false,
+      "status": "pass"
+    }
+  ],
+  "issues": [
+    {
+      "field": "主要功能",
+      "code": "below_current_form_guidance_500",
+      "severity": "review"
+    }
+  ],
+  "release_ready": true,
+  "notes": [
+    "字段顺序用于复制填写；提交当日仍以当前登记系统表单为准。",
+    "500–1300 字为当前办理信号，不升级为通用法定要求。"
+  ]
+}

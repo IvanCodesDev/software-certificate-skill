@@ -1,0 +1,310 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-08-11T12:12:25+08:00",
+  "updated_at": "2026-08-11T12:13:28+08:00",
+  "project_root": "${DEMO_PROJECT_ROOT}",
+  "output_root": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料",
+  "active_release": null,
+  "previous_release": null,
+  "stages": {
+    "environment": {
+      "status": "complete",
+      "input_sha256": "3cb379f7512e88b7bfa079828df967738f8e10485027d04617661c089d09f59f",
+      "completed_at": "2026-08-11T12:12:25+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\environment.json",
+          "sha256": "40885ccf71ed38ad589a133f8692a47f8bcd23a16bdbe11200ccc000a323c1b6"
+        }
+      ],
+      "message": "规则快照：2026-08-11"
+    },
+    "project_analysis": {
+      "status": "complete",
+      "input_sha256": "6e9e22fd5c8ec74b45098e52d9ff7cc0174dac29323c6198c11790dda8a6ca23",
+      "completed_at": "2026-08-11T12:12:25+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\evidence-graph.json",
+          "sha256": "eb16d9736b786a364dfcf3b0a3a5d763a97d83df347b80376a634ec7b4943b23"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\project-analysis.json",
+          "sha256": "31c945778cd483918383524cc9769305bacd471d36bde237b333f2277bfabb63"
+        }
+      ],
+      "message": ""
+    },
+    "business_understanding": {
+      "status": "complete",
+      "input_sha256": "a49173ef6e4b7cfdff9b07390c669caf44b66c0e847382db8daa1e6f0b284648",
+      "completed_at": "2026-08-11T12:12:26+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\business-understanding.json",
+          "sha256": "2abad98d428e45da2cedafbe854c851f3625fd6b65e4406af113aee7d78b91cc"
+        }
+      ],
+      "message": ""
+    },
+    "intake": {
+      "status": "complete",
+      "input_sha256": "78c68eefd846fc04fc8244aadbaa17cba0bdc1cb503d3c1f4fd88d51239c3084",
+      "completed_at": "2026-08-11T12:12:26+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\一次性基础信息表.json",
+          "sha256": "3f9925ad8656a0dac3d7700b5c03963b0ff68b0430ac95b4c3fb85c5626c31cb"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\application-facts.json",
+          "sha256": "3f9925ad8656a0dac3d7700b5c03963b0ff68b0430ac95b4c3fb85c5626c31cb"
+        }
+      ],
+      "message": ""
+    },
+    "application_form": {
+      "status": "complete",
+      "input_sha256": "7187256e7e5dd7d280b0790ab8834e118c515a4f2198dd55f236bd449b795727",
+      "completed_at": "2026-08-11T12:12:58+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\申请表信息.txt",
+          "sha256": "d1ac550008074adfbae96bd826f339a699476027b3e7bf5dda300e12036c198d"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\application-form-model.json",
+          "sha256": "e54fa7ddbc88488214080c0ebae6a2951de7683294f00da6eba63da9a4bcd312"
+        }
+      ],
+      "message": ""
+    },
+    "source_selection": {
+      "status": "complete",
+      "input_sha256": "239d57382d05a7f1e320527a452eaf05641c99e3bf942bd393fb6e1ad6e2a6e5",
+      "completed_at": "2026-08-11T12:12:26+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\source-manifest.json",
+          "sha256": "d4668aa9a139a07bd05813f7a0c70c48db4e03a2ba5bea7b468fd099c27c8e23"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\source-selection-report.json",
+          "sha256": "fb8230dde43bd4dfc75e5f3a7870e3d3b6c4944c81cb4d081a15570e9df16bb7"
+        }
+      ],
+      "message": ""
+    },
+    "screenshots": {
+      "status": "complete",
+      "input_sha256": "597d160ee7138828978a1f783362ba5c96cc896f297f06bf3ae40f43f3b4a8f7",
+      "completed_at": "2026-08-11T12:12:26+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\screenshot-index.json",
+          "sha256": "f9189fbfe6c3be1fe6e0782338cf59e5d87f7a446ff2e8749d76c563caa64e19"
+        }
+      ],
+      "message": ""
+    },
+    "manual": {
+      "status": "complete",
+      "input_sha256": "2f61e8125bfaeca84f7bbd8d4613f798162363e0875136e344ddf65b529460a4",
+      "completed_at": "2026-08-11T12:12:26+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\manual-content.json",
+          "sha256": "47efaa4f08917f55b6f7a6b1fbe17cd5c518733092e196ab63678d0886d46fa0"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\manual.docx",
+          "sha256": "7572fc1128d2970cdd47e45c53a9e06eee6c988bd8db9776b05b0c345983520f"
+        }
+      ],
+      "message": ""
+    },
+    "code_material": {
+      "status": "complete",
+      "input_sha256": "2004fc59dfcc96b1cdbcd5c60bc8b95be7ed8c2c9f96561810574455c4d411c5",
+      "completed_at": "2026-08-11T12:12:58+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\source-provenance.json",
+          "sha256": "5a80883054b0108a513ed394886f60feba306e1e4049e5ba7ccce92bbc406a18"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\source-all.docx",
+          "sha256": "ccc9f919723bef041ceb73a640d9043c55d69760c4d1ff6ea6d8ad6111259bf7"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\脱敏工单协同管理系统-代码(全部).pdf",
+          "sha256": "e5c5ab892d7d1b884af5abd31b28253cb92bae7a3d1d23114c3fcca449c476fd"
+        }
+      ],
+      "message": ""
+    },
+    "render": {
+      "status": "complete",
+      "input_sha256": "e959df0653cbd300836ecaa0e0f2df11f952e90fe068a6341d90d5a58797eb1e",
+      "completed_at": "2026-08-11T12:13:28+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\manual.pdf",
+          "sha256": "b876d7cfc40a4fe6fddb11a069c3293c825e9e15d1388305792acd98f666d4b1"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\render-reports\\操作手册.json",
+          "sha256": "ff69e2c242768456cdd2d772a98c492ae029e8b54f2d9c098c7bd9014063b96d"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\脱敏工单协同管理系统-代码(全部).pdf",
+          "sha256": "e5c5ab892d7d1b884af5abd31b28253cb92bae7a3d1d23114c3fcca449c476fd"
+        }
+      ],
+      "message": ""
+    },
+    "verification": {
+      "status": "complete",
+      "input_sha256": "f0352d65a87b1c8aa7a78d5540c509fc8ac0e73e8d5131cbc2467005b156a9a9",
+      "completed_at": "2026-08-11T12:13:28+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\质量检查\\材料一致性校验报告.json",
+          "sha256": "dc9478f4f63f20877eba6143ef62441a8fd5c7c6f3c195d426ce159cb7344df4"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\质量检查\\材料一致性校验报告.md",
+          "sha256": "3b5f4b7e2cf8125cbc9f68e68ca33519ce891b154f72bddf5e8276d4049585fc"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\质量检查\\SHA256SUMS.txt",
+          "sha256": "60c7d90c9e6062a03aac2cccf39669487f8fd95c1a0c374ac2f212fef86fff67"
+        }
+      ],
+      "message": ""
+    },
+    "release": {
+      "status": "complete",
+      "input_sha256": "ebe22b509c61f3b317f73aad962576cba7b9c5785624a041123d99fd834c8017",
+      "completed_at": "2026-08-11T12:13:28+08:00",
+      "outputs": [
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\正式资料\\提交材料清单.md",
+          "sha256": "7ee87c723d436f6d8ce500cbbd6ff3cda57a152447497649a12e3089e2ce936d"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\正式资料\\生成报告.md",
+          "sha256": "173ca2fe543a7c74b5ff7e1ef7f4b4225b758466dda87480281fac61f775783d"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\正式资料\\申请表信息.txt",
+          "sha256": "d1ac550008074adfbae96bd826f339a699476027b3e7bf5dda300e12036c198d"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\正式资料\\脱敏工单协同管理系统-代码(全部).docx",
+          "sha256": "ccc9f919723bef041ceb73a640d9043c55d69760c4d1ff6ea6d8ad6111259bf7"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\正式资料\\脱敏工单协同管理系统-代码(全部).pdf",
+          "sha256": "e5c5ab892d7d1b884af5abd31b28253cb92bae7a3d1d23114c3fcca449c476fd"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\正式资料\\脱敏工单协同管理系统_操作手册.docx",
+          "sha256": "7572fc1128d2970cdd47e45c53a9e06eee6c988bd8db9776b05b0c345983520f"
+        },
+        {
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\正式资料\\脱敏工单协同管理系统_操作手册.pdf",
+          "sha256": "b876d7cfc40a4fe6fddb11a069c3293c825e9e15d1388305792acd98f666d4b1"
+        }
+      ],
+      "message": "正式材料已生成并通过阻塞项检查"
+    }
+  },
+  "events": [
+    {
+      "at": "2026-08-11T12:12:25+08:00",
+      "stage": "environment",
+      "status": "complete",
+      "message": "规则快照：2026-08-11"
+    },
+    {
+      "at": "2026-08-11T12:12:25+08:00",
+      "stage": "project_analysis",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:25+08:00",
+      "stage": "business_understanding",
+      "status": "needs_model_synthesis",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:25+08:00",
+      "stage": "intake",
+      "status": "needs_confirmation",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:26+08:00",
+      "stage": "intake",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:26+08:00",
+      "stage": "business_understanding",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:26+08:00",
+      "stage": "source_selection",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:26+08:00",
+      "stage": "screenshots",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:26+08:00",
+      "stage": "manual",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:58+08:00",
+      "stage": "code_material",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:12:58+08:00",
+      "stage": "application_form",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:13:28+08:00",
+      "stage": "render",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:13:28+08:00",
+      "stage": "verification",
+      "status": "complete",
+      "message": ""
+    },
+    {
+      "at": "2026-08-11T12:13:28+08:00",
+      "stage": "release",
+      "status": "complete",
+      "message": "正式材料已生成并通过阻塞项检查"
+    }
+  ],
+  "manual_edits": {}
+}

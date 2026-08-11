@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "一次性软件著作权基础信息表",
+  "type": "object",
+  "required": ["software_full_name", "version", "rightsholder", "completion_date", "development_mode", "software_nature", "publication", "rights_acquisition", "rights_scope", "screenshot_mode"],
+  "properties": {
+    "software_full_name": {"type": "string", "minLength": 2},
+    "software_short_name": {"type": "string"},
+    "version": {"type": "string", "minLength": 1},
+    "rightsholder": {
+      "type": "object",
+      "required": ["type", "name", "id_type", "id_number"],
+      "properties": {
+        "type": {"enum": ["natural_person", "legal_person", "other_organization"]},
+        "name": {"type": "string", "minLength": 2},
+        "id_type": {"type": "string", "minLength": 1},
+        "id_number": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "completion_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "development_mode": {"enum": ["independent", "cooperative", "commissioned", "assigned"]},
+    "software_nature": {"enum": ["original", "modified"]},
+    "publication": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["published", "unpublished"]},
+        "first_publication_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
+      },
+      "allOf": [{"if": {"properties": {"status": {"const": "published"}}}, "then": {"required": ["first_publication_date"]}}],
+      "additionalProperties": false
+    },
+    "rights_acquisition": {"enum": ["original", "successive"]},
+    "rights_scope": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {"type": {"enum": ["all", "partial"]}, "detail": {"type": "string"}},
+      "additionalProperties": false
+    },
+    "ownership_notes": {"type": "string"},
+    "screenshot_mode": {"enum": ["chrome_devtools", "computer_use", "user_supplied", "skip"]},
+    "confirmed_by": {"type": "string"},
+    "confirmed_at": {"type": "string"}
+  },
+  "additionalProperties": false
+}

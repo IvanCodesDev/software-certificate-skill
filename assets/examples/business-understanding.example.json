@@ -1,0 +1,21 @@
+{
+  "software_classification": "【由模型结合项目证据填写】",
+  "software_purpose": "【由模型结合项目证据填写】",
+  "target_users": "【由模型结合项目证据填写】",
+  "industry_domain": "【由模型结合项目证据填写】",
+  "development_purpose": "【由模型结合项目证据填写】",
+  "development_environment": "【由模型结合项目证据填写】",
+  "development_tools": "【由模型结合项目证据填写】",
+  "runtime_platform": "【由模型结合项目证据填写】",
+  "runtime_support": "【由模型结合项目证据填写】",
+  "main_functions": "【由模型基于已确认功能综合填写】",
+  "technical_features": "【由模型结合真实实现填写】",
+  "startup": "【由模型结合实际启动方式填写】",
+  "interface_structure": "【由模型结合真实界面填写】",
+  "workflow_summary": "【由模型结合真实操作结果填写】",
+  "capabilities": [],
+  "faq": [],
+  "terms": [],
+  "confirmed_against_runtime": false,
+  "generated_from_evidence": true
+}

@@ -145,7 +145,7 @@ def main() -> int:
         "rightsholder": "自检申请人",
         "publication_status": "unpublished"
     })
-    for label, capability_count, expected_pages in (("small", 4, 40), ("complex", 30, 66)):
+    for label, capability_count, expected_pages in (("small", 4, 14), ("complex", 30, 40)):
         graph_path = work / f"evidence-{label}.json"
         save_json(graph_path, {
             "schema_version": "1.0",
@@ -186,9 +186,12 @@ def main() -> int:
     ]))
     large = load_json(large_out / "source-provenance.json")
     expected = list(range(1, 31)) + list(range(large["full_page_count"] - 29, large["full_page_count"] + 1))
-    assert large["selection"] == "first_30_and_last_30"
+    assert large["selection"] == "first_30_and_last_30_separate_volumes"
     assert large["filing_page_count"] == 60
-    assert large["selected_source_pages"] == expected
+    assert large["filing_groups"]["front_30"]["logical_source_pages"] == expected[:30]
+    assert large["filing_groups"]["back_30"]["logical_source_pages"] == expected[30:]
+    assert (large_out / "source-front-30.docx").is_file()
+    assert (large_out / "source-back-30.docx").is_file()
 
     report = {
         "generated_at": now_iso(),
@@ -199,8 +202,8 @@ def main() -> int:
             "toc_hyperlink_switch": True,
             "update_fields": True,
             "manual_has_no_visible_internal_evidence_ids": True,
-            "auto_page_plan_small_40": True,
-            "auto_page_plan_complex_66": True,
+            "content_based_page_plan_small": True,
+            "content_based_page_plan_complex": True,
             "under_60_submits_all": True,
             "at_least_60_selects_front_back_30": True,
             "source_provenance": True,

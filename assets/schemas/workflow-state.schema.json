@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Product workflow state",
+  "type": "object",
+  "required": ["schema_version", "project_root", "output_root", "stages", "events"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "project_root": {"type": "string"},
+    "output_root": {"type": "string"},
+    "stages": {"type": "object"},
+    "events": {"type": "array"}
+  }
+}

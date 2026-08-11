@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create an evidence-scaled 40–66 page storyboard, extendable to 72 pages."""
+"""Create a content-sized manual storyboard without padding to a fixed page target."""
 
 from __future__ import annotations
 
@@ -8,47 +8,28 @@ from pathlib import Path
 
 from common import find_slots, load_json, now_iso, save_json, sha256_text
 
-
 FRONT = [
-    ("cover", "封面", "建立软件名称、版本、材料类型与权利人身份"),
-    ("identity", "文档身份与修订状态", "锁定文档版本、适用范围和修订记录"),
-    ("toc", "智能目录（上）", "由 Word TOC 域生成章节跳转"),
-    ("navigation", "角色与流程导航", "按角色和端到端流程提供第二种阅读入口"),
-    ("overview", "软件定位与使用边界", "说明真实目标、对象和不覆盖范围"),
-    ("architecture", "系统组成与信息流", "用项目结构解释模块关系"),
-    ("environment", "运行环境与访问方式", "记录可核验环境、地址形态和客户端条件"),
-    ("concept", "关键对象与状态", "解释贯穿操作过程的数据对象和状态"),
-    ("role", "角色与职责", "说明真实角色及其任务范围"),
-    ("permission", "权限矩阵", "将角色、入口、动作和数据范围对应"),
-    ("access", "登录与身份核验", "形成登录动作、反馈与结果闭环"),
-    ("workflow", "端到端工作流", "展示核心场景的先后关系和状态变化")
+    ("cover", "封面", "标明软件名称、版本、材料类型与著作权人"),
+    ("toc", "目录", "由 Word TOC 域生成可跳转目录"),
+    ("overview", "软件概述", "说明开发目的、目标用户、使用范围和核心价值"),
+    ("environment", "运行环境与启动方式", "说明经证据确认的运行条件和访问方式"),
+    ("navigation", "界面结构与操作导航", "按真实页面、角色和任务组织阅读入口"),
+    ("workflow", "主要操作流程", "概括核心任务的先后关系和结果状态"),
 ]
-
 CLOSING = [
-    ("query", "查询与筛选", "说明真实查询条件和结果核验"),
-    ("report", "统计、报表与输出", "说明有证据支持的汇总或导出能力"),
-    ("exception", "输入校验与错误反馈", "记录项目中真实存在的校验路径"),
-    ("exception", "权限、状态与冲突处理", "解释权限不足或状态冲突的真实反馈"),
-    ("maintenance", "配置与维护", "仅纳入项目中可验证的参数和管理能力"),
-    ("security", "账号、数据与审计提示", "陈述可验证的账号和数据边界"),
-    ("faq", "常见问题", "基于实际易错步骤整理问题与判断方法"),
-    ("glossary", "界面术语", "统一菜单、按钮、状态和数据名称"),
-    ("evidence", "证据索引", "映射功能、截图、路由和源文件"),
-    ("revision", "版本与修订记录", "记录材料生成、复核和发布状态")
+    ("exception", "输入校验与异常提示", "仅记录项目中真实存在的限制和反馈"),
+    ("faq", "常见问题", "基于实际易错步骤提供判断方法"),
+    ("glossary", "必要术语说明", "统一真实界面、按钮和状态名称"),
+    ("revision", "版本与修订记录", "记录材料版本和复核状态"),
 ]
 
 
-def page(no: int, kind: str, title: str, intent: str, evidence_ids: list[str] | None = None,
-         status: str = "evidence_debt") -> dict:
+def make_page(no: int, kind: str, title: str, intent: str, evidence_ids: list[str] | None = None,
+              status: str = "evidence_debt") -> dict:
     return {
-        "page_no": no,
-        "kind": kind,
-        "title": title,
-        "intent": intent,
-        "evidence_ids": evidence_ids or [],
-        "status": status,
-        "content_owner": "applicant",
-        "review": {"logical": False, "visual": False, "evidence": False}
+        "page_no": no, "kind": kind, "title": title, "intent": intent,
+        "evidence_ids": evidence_ids or [], "status": status,
+        "review": {"logical": False, "visual": False, "evidence": False},
     }
 
 
@@ -58,74 +39,73 @@ def main() -> int:
     parser.add_argument("--evidence", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--target-pages", default="auto",
-                        help="auto or an integer from 40 to 72")
+                        help="auto uses only evidenced content; an integer is an advanced maximum, not a padding target")
     args = parser.parse_args()
     facts = load_json(args.facts)
     graph = load_json(args.evidence)
-
-    candidates = [n for n in graph.get("nodes", []) if n.get("type") == "capability_candidate"]
-    candidates.sort(key=lambda n: (-len(n.get("evidence_ids", [])), n.get("name", "")))
-    if str(args.target_pages).lower() == "auto":
-        target_pages = min(66, max(40, 22 + 2 * min(22, len(candidates))))
-        planning_mode = "auto_by_evidence_density"
-    else:
+    candidates = [node for node in graph.get("nodes", []) if node.get("type") in {"capability", "capability_candidate"}]
+    candidates.sort(key=lambda node: (-len(node.get("evidence_ids", [])), node.get("name", "")))
+    explicit_max = None
+    if str(args.target_pages).lower() != "auto":
         try:
-            target_pages = int(args.target_pages)
+            explicit_max = int(args.target_pages)
         except ValueError:
-            parser.error("--target-pages must be auto or an integer from 40 to 72")
-        if not 40 <= target_pages <= 72:
-            parser.error("--target-pages must be within 40..72")
-        planning_mode = "explicit"
+            parser.error("--target-pages must be auto or an integer from 6 to 120")
+        if not 6 <= explicit_max <= 120:
+            parser.error("--target-pages must be within 6..120")
+
     pages: list[dict] = []
+    facts_ready = not find_slots(facts)
     for kind, title, intent in FRONT:
-        auto_ready = kind in {"cover", "identity", "toc"} and not find_slots(facts)
-        pages.append(page(len(pages) + 1, kind, title, intent, status="ready" if auto_ready else "evidence_debt"))
+        status = "ready" if kind in {"cover", "toc"} and facts_ready else "evidence_debt"
+        pages.append(make_page(len(pages) + 1, kind, title, intent, status=status))
 
-    feature_page_count = target_pages - len(FRONT) - len(CLOSING)
-    feature_index = 0
-    for offset in range(feature_page_count):
-        pair_index = offset // 2
-        phase = "完成任务" if offset % 2 == 0 else "核验结果与异常"
-        if pair_index < len(candidates):
-            cap = candidates[pair_index]
-            evidence_ids = list(cap.get("evidence_ids", [])) + [cap["id"]]
-            status = "ready" if cap.get("status") == "human_confirmed" else "evidence_debt"
-            title = f"{pair_index + 1}. {cap.get('name', cap['id'])}—{phase}"
-            intent = "以入口、前置条件、动作和反馈完成任务闭环" if offset % 2 == 0 else "记录成功判据、数据变化和真实异常路径"
-            feature_index = max(feature_index, pair_index + 1)
-        else:
-            title = f"待确认核心任务 {pair_index + 1}—{phase}"
-            intent = "从运行系统和申请人访谈补充一个不同的核心任务证据"
-            evidence_ids = []
-            status = "evidence_debt"
-        pages.append(page(len(pages) + 1, "feature", title, intent, evidence_ids, status))
+    used = 0
+    for candidate in candidates:
+        if explicit_max and len(pages) + len(CLOSING) >= explicit_max:
+            break
+        evidence_ids = list(dict.fromkeys([candidate.get("id", ""), *candidate.get("evidence_ids", [])]))
+        evidence_ids = [value for value in evidence_ids if value]
+        confirmed = candidate.get("status") in {"human_confirmed", "runtime_confirmed", "published"}
+        status = "ready" if confirmed and evidence_ids else "evidence_debt"
+        name = candidate.get("name", candidate.get("id", "功能"))
+        pages.append(make_page(
+            len(pages) + 1, "feature", f"{used + 1}. {name}",
+            "说明用途、入口、界面、操作、限制、成功反馈、异常反馈和对应截图",
+            evidence_ids, status,
+        ))
+        used += 1
+        has_rich_evidence = len(evidence_ids) >= 3 or candidate.get("complexity") == "high"
+        if has_rich_evidence and (not explicit_max or len(pages) + len(CLOSING) < explicit_max):
+            pages.append(make_page(
+                len(pages) + 1, "feature_result", f"{used}. {name}—结果核验与异常",
+                "补充不同于操作步骤的结果、数据变化和真实异常路径", evidence_ids, status,
+            ))
 
-    route_ids = [n["id"] for n in graph.get("nodes", []) if n.get("type") == "route"]
-    shot_ids = [n["id"] for n in graph.get("nodes", []) if n.get("type") == "screenshot"]
+    route_ids = [node["id"] for node in graph.get("nodes", []) if node.get("type") == "route"]
+    shot_ids = [node["id"] for node in graph.get("nodes", []) if node.get("type") == "screenshot"]
     for kind, title, intent in CLOSING:
-        evidence_ids = route_ids[:3] if kind in {"query", "exception", "security"} else shot_ids[:3]
-        pages.append(page(len(pages) + 1, kind, title, intent, evidence_ids,
-                          "ready" if evidence_ids else "evidence_debt"))
+        evidence_ids = route_ids[:5] if kind == "exception" else shot_ids[:5]
+        if kind in {"faq", "glossary", "revision"}:
+            status = "ready" if facts_ready and used else "evidence_debt"
+        else:
+            status = "ready" if evidence_ids else "evidence_debt"
+        pages.append(make_page(len(pages) + 1, kind, title, intent, evidence_ids, status))
 
-    debt = [p["page_no"] for p in pages if p["status"] == "evidence_debt"]
-    facts_text = __import__("json").dumps(facts, ensure_ascii=False, sort_keys=True)
+    debt = [item["page_no"] for item in pages if item["status"] == "evidence_debt"]
     result = {
-        "schema_version": "1.0",
-        "generated_at": now_iso(),
-        "target_pages": target_pages,
-        "planned_pages": len(pages),
-        "recommended_range": [40, 66],
-        "planning_mode": planning_mode,
-        "facts_sha256": sha256_text(facts_text),
-        "facts_slots": find_slots(facts),
-        "candidate_capabilities_used": feature_index,
-        "evidence_debt_pages": debt,
-        "release_ready": not debt and not find_slots(facts),
-        "pages": pages
+        "schema_version": "2.0", "generated_at": now_iso(),
+        "target_pages": "content_based" if explicit_max is None else explicit_max,
+        "planned_pages": len(pages), "planning_mode": "content_based_no_padding",
+        "facts_sha256": sha256_text(__import__("json").dumps(facts, ensure_ascii=False, sort_keys=True)),
+        "facts_slots": find_slots(facts), "candidate_capabilities_used": used,
+        "evidence_debt_pages": debt, "release_ready": not debt and facts_ready,
+        "pages": pages,
+        "note": "页数由真实功能、操作复杂度、异常路径和截图证据决定，不设置40页、60页或66页下限。",
     }
     save_json(args.output.resolve(), result)
     print(f"MANUAL_PLAN={args.output.resolve()}")
-    print(f"PAGES={len(pages)} EVIDENCE_DEBT={len(debt)} FACT_SLOTS={len(result['facts_slots'])}")
+    print(f"PAGES={len(pages)} CAPABILITIES={used} EVIDENCE_DEBT={len(debt)} FACT_SLOTS={len(result['facts_slots'])}")
     return 0
 
 

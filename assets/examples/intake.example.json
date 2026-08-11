@@ -1,0 +1,21 @@
+{
+  "software_full_name": "【待确认：软件全称】",
+  "software_short_name": "",
+  "version": "V1.0",
+  "rightsholder": {
+    "type": "legal_person",
+    "name": "【待确认：著作权人名称】",
+    "id_type": "统一社会信用代码",
+    "id_number": "【待确认：证件号码】"
+  },
+  "completion_date": "2026-08-11",
+  "development_mode": "independent",
+  "software_nature": "original",
+  "publication": {"status": "unpublished"},
+  "rights_acquisition": "original",
+  "rights_scope": {"type": "all", "detail": ""},
+  "ownership_notes": "",
+  "screenshot_mode": "chrome_devtools",
+  "confirmed_by": "",
+  "confirmed_at": ""
+}

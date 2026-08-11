@@ -6,3 +6,7 @@
 *.yml text eol=lf
 *.ps1 text eol=crlf
 *.png binary
+*.jpg binary
+*.jpeg binary
+*.docx binary
+*.pdf binary

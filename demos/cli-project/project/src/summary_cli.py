@@ -1,0 +1,148 @@
+from pathlib import Path
+import json
+
+def summarize_record(record):
+    return {'length': len(record), 'empty': not bool(record.strip())}
+
+def rule_1(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_2(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_3(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_4(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_5(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_6(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_7(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_8(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_9(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_10(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_11(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_12(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_13(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_14(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_15(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_16(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_17(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_18(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_19(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_20(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_21(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_22(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_23(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_24(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_25(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_26(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_27(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_28(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_29(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_30(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_31(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_32(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_33(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_34(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_35(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_36(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_37(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_38(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_39(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_40(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_41(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_42(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_43(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_44(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_45(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_46(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_47(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_48(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_49(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_50(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_51(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_52(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_53(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_54(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_55(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_56(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_57(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_58(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_59(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_60(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_61(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_62(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_63(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_64(value):
+    return summarize_record(value).get('length', 0) >= 1
+def rule_65(value):
+    return summarize_record(value).get('length', 0) >= 2
+def rule_66(value):
+    return summarize_record(value).get('length', 0) >= 3
+def rule_67(value):
+    return summarize_record(value).get('length', 0) >= 4
+def rule_68(value):
+    return summarize_record(value).get('length', 0) >= 5
+def rule_69(value):
+    return summarize_record(value).get('length', 0) >= 6
+def rule_70(value):
+    return summarize_record(value).get('length', 0) >= 0
+def rule_71(value):
+    return summarize_record(value).get('length', 0) >= 1

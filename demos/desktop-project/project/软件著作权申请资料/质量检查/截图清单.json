@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-11T12:13:30+08:00",
+  "mode": "user_supplied",
+  "source": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\用户截图",
+  "output": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\screenshots",
+  "captures": [
+    {
+      "id": "user-shot-001",
+      "title": "核心处理",
+      "status": "pass",
+      "source_path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\用户截图\\01-core.png",
+      "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\screenshots\\001-user-shot-001.png",
+      "sha256": "d336ca0c4fc44666c30624a66e90296e512a7308b81e3bef41cf50ac3c5a3f16",
+      "role": null,
+      "url": "user-supplied",
+      "evidence_ids": [
+        "FILE-core",
+        "RUNTIME-core"
+      ],
+      "captured_at": null,
+      "metrics": {
+        "width": 1440,
+        "height": 900,
+        "mode": "RGB",
+        "grayscale_mean": 225.249,
+        "grayscale_stddev": 61.276,
+        "entropy": 2.634,
+        "near_white_ratio": 0.487719,
+        "content_ratio": 0.202774,
+        "dhash": "8101020808080121"
+      },
+      "quality_findings": []
+    }
+  ],
+  "summary": {
+    "requested": 1,
+    "provided": 1,
+    "passed": 1,
+    "quality_warnings": 0,
+    "duplicates": 0,
+    "missing_planned": 0,
+    "errors": 0
+  }
+}

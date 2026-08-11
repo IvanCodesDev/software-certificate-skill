@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-11T12:13:28+08:00",
+  "software_full_name": "脱敏工单协同管理系统",
+  "version": "V1.0",
+  "checks": [
+    {
+      "name": "正式文件完整性",
+      "status": "pass",
+      "severity": "error",
+      "detail": "7项正式文件齐全"
+    },
+    {
+      "name": "申请表必填字段与长度",
+      "status": "pass",
+      "severity": "error",
+      "detail": "问题数：1"
+    },
+    {
+      "name": "单一事实源一致性",
+      "status": "pass",
+      "severity": "error",
+      "detail": "软件名称与版本已贯穿申请表"
+    },
+    {
+      "name": "DOCX结构与页眉事实",
+      "status": "pass",
+      "severity": "error",
+      "detail": "2个DOCX结构可读"
+    },
+    {
+      "name": "PDF转换与逐页渲染",
+      "status": "pass",
+      "severity": "error",
+      "detail": "报告2份；失败0份"
+    },
+    {
+      "name": "代码真实性抽样追溯",
+      "status": "pass",
+      "severity": "error",
+      "detail": "映射记录220条"
+    },
+    {
+      "name": "代码页数与前后卷连续性",
+      "status": "pass",
+      "severity": "error",
+      "detail": "总逻辑页5；分卷['all']"
+    },
+    {
+      "name": "操作手册业务证据",
+      "status": "pass",
+      "severity": "error",
+      "detail": "已确认功能1项"
+    },
+    {
+      "name": "截图清晰度、来源与章节映射",
+      "status": "pass",
+      "severity": "warning",
+      "detail": "截图1张；模式user_supplied"
+    },
+    {
+      "name": "待确认占位符清零",
+      "status": "pass",
+      "severity": "error",
+      "detail": "无占位符"
+    },
+    {
+      "name": "敏感信息与第三方风险",
+      "status": "pass",
+      "severity": "error",
+      "detail": "未发现进入材料的敏感项"
+    }
+  ],
+  "summary": {
+    "pass": 11,
+    "fail": 0,
+    "blocking": 0
+  },
+  "release_ready": true,
+  "formal_files": [
+    {
+      "name": "提交材料清单.md",
+      "sha256": "7ee87c723d436f6d8ce500cbbd6ff3cda57a152447497649a12e3089e2ce936d",
+      "bytes": 556
+    },
+    {
+      "name": "生成报告.md",
+      "sha256": "173ca2fe543a7c74b5ff7e1ef7f4b4225b758466dda87480281fac61f775783d",
+      "bytes": 586
+    },
+    {
+      "name": "申请表信息.txt",
+      "sha256": "d1ac550008074adfbae96bd826f339a699476027b3e7bf5dda300e12036c198d",
+      "bytes": 1979
+    },
+    {
+      "name": "脱敏工单协同管理系统-代码(全部).docx",
+      "sha256": "ccc9f919723bef041ceb73a640d9043c55d69760c4d1ff6ea6d8ad6111259bf7",
+      "bytes": 39163
+    },
+    {
+      "name": "脱敏工单协同管理系统-代码(全部).pdf",
+      "sha256": "e5c5ab892d7d1b884af5abd31b28253cb92bae7a3d1d23114c3fcca449c476fd",
+      "bytes": 84567
+    },
+    {
+      "name": "脱敏工单协同管理系统_操作手册.docx",
+      "sha256": "7572fc1128d2970cdd47e45c53a9e06eee6c988bd8db9776b05b0c345983520f",
+      "bytes": 65570
+    },
+    {
+      "name": "脱敏工单协同管理系统_操作手册.pdf",
+      "sha256": "b876d7cfc40a4fe6fddb11a069c3293c825e9e15d1388305792acd98f666d4b1",
+      "bytes": 185973
+    }
+  ]
+}

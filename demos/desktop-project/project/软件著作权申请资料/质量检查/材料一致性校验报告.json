@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-11T12:14:32+08:00",
+  "software_full_name": "脱敏文件批次校验工具",
+  "version": "V1.0",
+  "checks": [
+    {
+      "name": "正式文件完整性",
+      "status": "pass",
+      "severity": "error",
+      "detail": "7项正式文件齐全"
+    },
+    {
+      "name": "申请表必填字段与长度",
+      "status": "pass",
+      "severity": "error",
+      "detail": "问题数：1"
+    },
+    {
+      "name": "单一事实源一致性",
+      "status": "pass",
+      "severity": "error",
+      "detail": "软件名称与版本已贯穿申请表"
+    },
+    {
+      "name": "DOCX结构与页眉事实",
+      "status": "pass",
+      "severity": "error",
+      "detail": "2个DOCX结构可读"
+    },
+    {
+      "name": "PDF转换与逐页渲染",
+      "status": "pass",
+      "severity": "error",
+      "detail": "报告2份；失败0份"
+    },
+    {
+      "name": "代码真实性抽样追溯",
+      "status": "pass",
+      "severity": "error",
+      "detail": "映射记录222条"
+    },
+    {
+      "name": "代码页数与前后卷连续性",
+      "status": "pass",
+      "severity": "error",
+      "detail": "总逻辑页5；分卷['all']"
+    },
+    {
+      "name": "操作手册业务证据",
+      "status": "pass",
+      "severity": "error",
+      "detail": "已确认功能1项"
+    },
+    {
+      "name": "截图清晰度、来源与章节映射",
+      "status": "pass",
+      "severity": "warning",
+      "detail": "截图1张；模式user_supplied"
+    },
+    {
+      "name": "待确认占位符清零",
+      "status": "pass",
+      "severity": "error",
+      "detail": "无占位符"
+    },
+    {
+      "name": "敏感信息与第三方风险",
+      "status": "pass",
+      "severity": "error",
+      "detail": "未发现进入材料的敏感项"
+    }
+  ],
+  "summary": {
+    "pass": 11,
+    "fail": 0,
+    "blocking": 0
+  },
+  "release_ready": true,
+  "formal_files": [
+    {
+      "name": "提交材料清单.md",
+      "sha256": "e689d05941c1a3e5501ba830aa4d766ce8f1f0ad6bbde163d607b880cda12c2b",
+      "bytes": 556
+    },
+    {
+      "name": "生成报告.md",
+      "sha256": "d0bf8a1c1dc9405ff14b0e4d38674bcb0a8127749c6b8035ce6734b7610d8549",
+      "bytes": 590
+    },
+    {
+      "name": "申请表信息.txt",
+      "sha256": "912bde4562132c4eaf945f390e56ac63aa261ed463f94b8b439842f8a8ffc856",
+      "bytes": 2026
+    },
+    {
+      "name": "脱敏文件批次校验工具-代码(全部).docx",
+      "sha256": "83551231d8fcf046d4c8223a02ee82aaf4c087323529fd791965000cafa79e8e",
+      "bytes": 39248
+    },
+    {
+      "name": "脱敏文件批次校验工具-代码(全部).pdf",
+      "sha256": "115c1d78f323f5c878b276d8ac694f9ca01763355898dc7ce2d3aa4d8274ea83",
+      "bytes": 88550
+    },
+    {
+      "name": "脱敏文件批次校验工具_操作手册.docx",
+      "sha256": "8ecc79645cf6a0a302205ae3423949d4c101b3442ec267d28964fdf729637f7e",
+      "bytes": 65201
+    },
+    {
+      "name": "脱敏文件批次校验工具_操作手册.pdf",
+      "sha256": "f747095cdc7c112b7a6e0d08c17304af86f7f9b631fa17094c6173316aa1f5fa",
+      "bytes": 183491
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "include": [
+    "**/*"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/vendor/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/bin/**",
+    "**/obj/**",
+    "**/target/**",
+    "**/coverage/**",
+    "**/*.min.js",
+    "**/*.generated.*",
+    "**/*test*/**",
+    "**/*fixture*/**",
+    "**/*demo*/**",
+    "**/*example*/**"
+  ],
+  "ordered_files": [
+    "src/Program.cs"
+  ],
+  "selection_policy": {
+    "scope": "申请软件自身且与主要功能直接相关的完整源文件",
+    "unit": "whole_source_file",
+    "mode": "automatic_evidence_ranked",
+    "preferred_layers": [
+      "entry",
+      "route",
+      "controller",
+      "page",
+      "service",
+      "state",
+      "domain",
+      "algorithm"
+    ],
+    "rationale": "综合项目结构、业务层次、真实源码行数、敏感信息和重复内容自动排序"
+  },
+  "file_decisions": [
+    {
+      "path": "src/Program.cs",
+      "role": "entry",
+      "evidence_ids": [],
+      "reason": "application_entry",
+      "score": 100,
+      "sha256": "dd5ab115880ab569706df34bcc57dc3b3cf6e8c6af1b6c6289b0ef9e3706df1b"
+    }
+  ],
+  "review": {
+    "confirmed_by": "automatic evidence-ranked selector",
+    "confirmed_at": "2026-08-11T12:13:30+08:00",
+    "open_source_boundary_checked": true,
+    "generated_code_boundary_checked": true,
+    "secret_scan_checked": true,
+    "requires_user_confirmation": false
+  }
+}

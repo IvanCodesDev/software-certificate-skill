@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "snapshot_date": "2026-08-11",
+  "timezone": "Asia/Shanghai",
+  "stale_after_days": 90,
+  "sources": [
+    {
+      "level": "A",
+      "publisher": "国家版权局",
+      "title": "计算机软件著作权登记办法",
+      "url": "https://www.ncac.gov.cn/xxfb/flfg/bmgz/202410/t20241015_869486.html",
+      "publication_date": "2002-02-20",
+      "retrieved_date": "2026-08-11",
+      "scope": "申请材料、鉴别材料、页数、行数、A4、审查与补正",
+      "summary": "申请文件包括申请表、程序与文档鉴别材料和证明文件；程序与文档达到60页时交存前后各连续30页，不足60页交存全部；程序每页不少于50行，文档每页不少于30行。"
+    },
+    {
+      "level": "A",
+      "publisher": "司法部国家行政法规库",
+      "title": "计算机软件保护条例",
+      "url": "https://xzfg.moj.gov.cn/mobile/law/detail?LawID=914",
+      "publication_date": "2013-01-30",
+      "retrieved_date": "2026-08-11",
+      "scope": "软件、程序、文档、著作权人与登记的基础定义",
+      "summary": "软件包括计算机程序及其有关文档；登记证明文件是登记事项的初步证明。"
+    },
+    {
+      "level": "A",
+      "publisher": "国家版权局",
+      "title": "关于公布2025年全国著作权登记情况的通知",
+      "url": "https://www.ncac.gov.cn/xxfb/bqshfw/bqdj/ndtj/202603/t20260319_964262.html",
+      "publication_date": "2026-03-06",
+      "retrieved_date": "2026-08-11",
+      "scope": "2025年度软件著作权登记统计",
+      "summary": "2025年全国完成计算机软件著作权登记3,182,829件。统计不构成任何模板通过率承诺。"
+    },
+    {
+      "level": "B",
+      "publisher": "中国版权保护中心当前登记系统",
+      "title": "计算机软件著作权登记在线申请表与办理界面",
+      "url": "https://register.ccopyright.com.cn/",
+      "publication_date": null,
+      "retrieved_date": "2026-08-11",
+      "scope": "提交当日字段、枚举、条件必填、声明、文件格式与签章",
+      "summary": "动态系统内容需在提交时复核；本快照不把界面经验升级为通用法定要求。"
+    },
+    {
+      "level": "C",
+      "publisher": "政府、高校和行业机构",
+      "title": "2026年办理说明集合",
+      "url": "references/research-evidence-2026.md",
+      "publication_date": "2026",
+      "retrieved_date": "2026-08-11",
+      "scope": "实名认证、无纸化、R11、诚信审查、当前表单信号",
+      "summary": "用于当前办理流程交叉验证，冲突时以A/B级原始来源和提交当日系统为准。"
+    },
+    {
+      "level": "D",
+      "publisher": "公开材料",
+      "title": "公开案例与历史经验",
+      "url": "references/research-evidence-2026.md",
+      "publication_date": null,
+      "retrieved_date": "2026-08-11",
+      "scope": "版式、章节、常见差错和可读性启发",
+      "summary": "只提炼可观察特征，不复制业务内容，不用作硬性规则。"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project analysis and field inference",
+  "type": "object",
+  "required": ["schema_version", "project", "field_inferences", "technology", "capabilities", "conflicts"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "project": {"type": "object"},
+    "field_inferences": {"type": "object"},
+    "technology": {"type": "object"},
+    "capabilities": {"type": "array"},
+    "conflicts": {"type": "array"}
+  },
+  "additionalProperties": true
+}

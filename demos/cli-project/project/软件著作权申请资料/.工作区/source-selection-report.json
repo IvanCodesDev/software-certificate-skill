@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-11T12:14:34+08:00",
+  "project_root": "${DEMO_PROJECT_ROOT}",
+  "selected_files": 1,
+  "selected_original_lines": 148,
+  "represented_roles": [
+    "support"
+  ],
+  "scope_candidates": [],
+  "scope_confirmation_required": false,
+  "secret_findings": [],
+  "decisions": [
+    {
+      "path": "src/summary_cli.py",
+      "decision": "include",
+      "role": "support",
+      "score": 20,
+      "line_count": 148,
+      "sha256": "7d005f61fa8cc225fe50d5493cb9e8b3d8ce2445bf7f0f9a6bbbf1bfcd4b7726",
+      "reasons": [],
+      "reason": "真实可读源码"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-11T12:15:05+08:00",
+  "input": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\source-all.docx",
+  "input_sha256": "658d08f9a2b817f575a61fe4fa416719bed64e409ad0340d4674697c1897df57",
+  "pdf": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\code-material\\脱敏数据摘要命令行工具-代码(全部).pdf",
+  "pdf_sha256": "61001d914506ac2ab2a4a26a927161630cd9307ffcb1ae2708d7250b0c607cd9",
+  "pdf_pages": 3,
+  "expected_pages": 3,
+  "rendered_pages": 3,
+  "conversion": {
+    "engine": "LibreOffice UNO",
+    "command": [
+      "${OFFICE_RUNTIME}\\python.exe",
+      "<temporary-script>",
+      "<staged-docx>",
+      "<staged-pdf>",
+      "52333"
+    ],
+    "server_command": [
+      "${OFFICE_RUNTIME}/soffice.exe",
+      "--headless",
+      "--nologo",
+      "--nodefault",
+      "--norestore",
+      "--nolockcheck",
+      "-env:UserInstallation=file:///${TEMP}/softcert-uno-itgimsgc/profile",
+      "--accept=socket,host=127.0.0.1,port=52333;urp;StarOffice.ServiceManager"
+    ],
+    "stdout": "INDEXES_UPDATED=0",
+    "stderr": "",
+    "exit_status": 0
+  },
+  "rendered": [
+    {
+      "page": 1,
+      "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\rendered\\脱敏数据摘要命令行工具-代码(全部)\\page-1.png",
+      "sha256": "881224614c57574d1119269a4e700d8031d1e040e2c60f5e540534632e9a5a13",
+      "bytes": 139562,
+      "width": 993,
+      "height": 1404,
+      "mean_luma": 251.88,
+      "extrema": [
+        0,
+        255
+      ],
+      "possibly_blank": false
+    },
+    {
+      "page": 2,
+      "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\rendered\\脱敏数据摘要命令行工具-代码(全部)\\page-2.png",
+      "sha256": "68d028a799b3e8510f8c1c6fd9c84b8714a18b3c9b9d7245256307067e970625",
+      "bytes": 148331,
+      "width": 993,
+      "height": 1404,
+      "mean_luma": 251.71,
+      "extrema": [
+        0,
+        255
+      ],
+      "possibly_blank": false
+    },
+    {
+      "page": 3,
+      "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\rendered\\脱敏数据摘要命令行工具-代码(全部)\\page-3.png",
+      "sha256": "cb0d73de9df783a9b11b79bba06e211045ccb51c61007e6bed1ecd081c8713cf",
+      "bytes": 142989,
+      "width": 993,
+      "height": 1404,
+      "mean_luma": 251.83,
+      "extrema": [
+        0,
+        255
+      ],
+      "possibly_blank": false
+    }
+  ],
+  "issues": [],
+  "status": "pass"
+}

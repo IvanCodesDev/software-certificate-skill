@@ -1,0 +1,233 @@
+{
+  "facts": {
+    "software_full_name": "脱敏工单协同管理系统",
+    "software_short_name": "演示工单协同管理系统",
+    "version": "V1.0",
+    "rightsholder": "演示软件研究中心",
+    "completion_date": "2026-08-01",
+    "development_mode": "independent",
+    "software_nature": "original",
+    "publication": {
+      "status": "unpublished"
+    },
+    "rights_acquisition": "original",
+    "rights_scope": {
+      "type": "all",
+      "detail": ""
+    },
+    "ownership_notes": "完全合成的开源演示事实，不用于真实申请。",
+    "screenshot_mode": "user_supplied",
+    "confirmed_by": "demo-builder",
+    "confirmed_at": "2026-08-11T00:00:00+08:00"
+  },
+  "document": {
+    "title": "操作手册",
+    "type": "软件著作权鉴别材料",
+    "edition": "正式版",
+    "status": "待渲染复核",
+    "date": "2026-08-11"
+  },
+  "pages": [
+    {
+      "kind": "cover",
+      "title": "脱敏工单协同管理系统",
+      "lead": "操作手册 · V1.0"
+    },
+    {
+      "kind": "toc",
+      "title": "目录",
+      "lead": "目录由 Word 自动生成，可点击条目跳转。"
+    },
+    {
+      "kind": "section",
+      "title": "1 软件概述",
+      "level": 1,
+      "lead": "帮助内部服务人员查看、筛选并处理脱敏工单记录。",
+      "blocks": [
+        {
+          "type": "table",
+          "headers": [
+            "项目",
+            "说明"
+          ],
+          "rows": [
+            [
+              "开发目的",
+              "帮助内部服务人员查看、筛选并处理脱敏工单记录。"
+            ],
+            [
+              "目标用户",
+              "需要完成该项业务的内部工作人员与系统维护人员"
+            ],
+            [
+              "面向领域",
+              "通用软件工具"
+            ],
+            [
+              "软件版本",
+              "V1.0"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "软件围绕帮助内部服务人员查看、筛选并处理脱敏工单记录。提供统一入口。使用者可从浏览器首页的‘工单列表’菜单进入，查看筛选区、工单表格、状态列和详情按钮，按照明确步骤完成输入、执行与结果核验。系统对必填项、输入路径和操作状态进行校验；成功时给出可见反馈，失败时保留原因并允许修正后重试。操作记录使用脱敏标识，演示数据不包含真实个人信息。该演示只描述源码与截图中能够核验的能力，用于展示申请材料如何保持表单、手册、截图与代码一致。"
+        }
+      ]
+    },
+    {
+      "kind": "section",
+      "title": "2 运行环境与启动",
+      "level": 1,
+      "lead": "说明使用软件前需要具备的环境和启动方式。",
+      "blocks": [
+        {
+          "type": "table",
+          "headers": [
+            "项目",
+            "说明"
+          ],
+          "rows": [
+            [
+              "运行平台",
+              "Web管理系统"
+            ],
+            [
+              "支撑环境",
+              "具备文件读写权限的常规计算机环境"
+            ],
+            [
+              "启动方式",
+              "按照项目README中的启动入口运行，看到主界面或命令帮助即表示启动成功。"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "主要操作区域包括筛选区、工单表格、状态列和详情按钮。"
+        }
+      ]
+    },
+    {
+      "kind": "section",
+      "title": "3 主要操作流程",
+      "level": 1,
+      "lead": "进入功能、提供输入、执行处理、查看结果、按提示修正异常。",
+      "blocks": []
+    },
+    {
+      "kind": "section",
+      "title": "4 核心处理",
+      "level": 1,
+      "lead": "帮助内部服务人员查看、筛选并处理脱敏工单记录。",
+      "evidence_ids": [
+        "FILE-core",
+        "RUNTIME-core"
+      ],
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "帮助内部服务人员查看、筛选并处理脱敏工单记录。"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "操作要素",
+            "说明"
+          ],
+          "rows": [
+            [
+              "适用用户",
+              "内部工作人员"
+            ],
+            [
+              "进入位置",
+              "浏览器首页的‘工单列表’菜单"
+            ],
+            [
+              "页面内容",
+              "筛选区、工单表格、状态列和详情按钮"
+            ],
+            [
+              "使用限制",
+              "只使用脱敏演示数据；输入必须满足界面或命令提示"
+            ]
+          ]
+        },
+        {
+          "type": "steps",
+          "items": [
+            "打开工单列表并等待表格加载",
+            "输入脱敏关键字并执行查询",
+            "打开目标工单详情",
+            "更新处理状态并保存"
+          ]
+        },
+        {
+          "type": "note",
+          "title": "操作结果",
+          "text": "页面显示保存成功提示，状态列同步为新的处理状态。"
+        },
+        {
+          "type": "note",
+          "title": "异常与输入提示",
+          "text": "必填内容为空时页面在对应输入框旁显示校验提示，保存操作不会提交。"
+        },
+        {
+          "type": "image",
+          "path": "${DEMO_PROJECT_ROOT}\\软件著作权申请资料\\.工作区\\screenshots\\001-user-shot-001.png",
+          "width_mm": 160,
+          "caption": "图 1  核心处理"
+        }
+      ]
+    },
+    {
+      "kind": "section",
+      "title": "5 常见问题",
+      "level": 1,
+      "lead": "以下问题来自实际操作中的常见判断点。",
+      "blocks": [
+        {
+          "type": "table",
+          "headers": [
+            "问题",
+            "处理方法"
+          ],
+          "rows": [
+            [
+              "操作失败后如何处理？",
+              "必填内容为空时页面在对应输入框旁显示校验提示，保存操作不会提交。"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "section",
+      "title": "6 术语说明",
+      "level": 1,
+      "lead": "统一手册中的界面和状态名称。",
+      "blocks": [
+        {
+          "type": "table",
+          "headers": [
+            "术语",
+            "说明"
+          ],
+          "rows": [
+            [
+              "脱敏数据",
+              "不包含可识别真实个人或组织的信息。"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "generation": {
+    "content_based": true,
+    "logical_sections": 8,
+    "screenshot_mode": "user_supplied",
+    "missing_screenshots": []
+  }
+}
