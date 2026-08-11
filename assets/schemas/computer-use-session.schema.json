@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Computer Use screenshot execution receipt",
+  "type": "object",
+  "required": ["started_at", "completed_at", "launch", "login", "actions", "captures"],
+  "properties": {
+    "started_at": {"type": "string", "minLength": 1},
+    "completed_at": {"type": "string", "minLength": 1},
+    "platform": {"type": "string"},
+    "launch": {
+      "type": "object", "required": ["result"],
+      "properties": {"result": {"enum": ["pass", "error"]}, "command": {"type": "string"}, "window": {"type": "string"}}
+    },
+    "login": {
+      "type": "object", "required": ["required", "result"],
+      "properties": {"required": {"type": "boolean"}, "result": {"enum": ["pass", "skipped", "error"]}, "role": {"type": "string"}}
+    },
+    "actions": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["capture_id", "action", "result"],
+        "properties": {"capture_id": {"type": "string"}, "action": {"type": "string"},
+                       "result": {"enum": ["pass", "error"]}, "detail": {"type": "string"}}
+      }
+    },
+    "captures": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["id", "url", "role"],
+        "anyOf": [{"required": ["source_path"]}, {"required": ["path"]}],
+        "properties": {"id": {"type": "string"}, "source_path": {"type": "string"}, "path": {"type": "string"},
+                       "url": {"type": "string"}, "role": {"type": "string"}, "captured_at": {"type": "string"}}
+      }
+    }
+  }
+}

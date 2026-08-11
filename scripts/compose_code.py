@@ -256,6 +256,7 @@ def main() -> int:
         "file_decisions": manifest.get("file_decisions", []),
         "lines_per_page": args.lines_per_page,
         "max_chars": args.max_chars,
+        "original_line_count": sum(item.get("original_lines", 0) for item in file_records),
         "full_line_count": len(lines),
         "full_page_count": total_pages,
         "filing_page_count": sum(item["page_count"] for item in filing_groups.values()),

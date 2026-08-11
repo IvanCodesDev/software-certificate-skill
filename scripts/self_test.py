@@ -90,8 +90,9 @@ def main() -> int:
     screenshot_index = work / "screenshot-index.json"
     save_json(screenshot_index, {
         "schema_version": "1.0", "generated_at": now_iso(),
+        "mode": "chrome_devtools", "state": "captured",
         "summary": {"requested": 1, "completed": 1, "passed": 1,
-                    "quality_warnings": 0, "errors": 0},
+                    "quality_warnings": 0, "errors": 0, "missing_planned": 0},
         "captures": [{
             "id": "dashboard-overview", "title": "工作台概览", "status": "pass",
             "path": str(screenshot_fixture), "sha256": sha256_file(screenshot_fixture),
@@ -134,6 +135,9 @@ def main() -> int:
         document_xml = archive.read("word/document.xml").decode("utf-8", "replace")
         settings_xml = archive.read("word/settings.xml").decode("utf-8", "replace")
         assert "TOC \\o" in document_xml and "\\h" in document_xml
+        assert '<w:hyperlink w:anchor="_SoftCertToc' in document_xml
+        assert "<w:bookmarkStart" in document_xml
+        assert "PAGEREF _SoftCertToc" in document_xml
         assert "updateFields" in settings_xml
         assert not any(token in document_xml for token in ("SOFTWARE COPYRIGHT", "PRODUCT EVIDENCE", "UI-login", "STEP-login"))
 
@@ -200,6 +204,8 @@ def main() -> int:
             "docx_zip": True,
             "real_toc_field": True,
             "toc_hyperlink_switch": True,
+            "materialized_toc_hyperlinks": True,
+            "toc_bookmarks_and_page_references": True,
             "update_fields": True,
             "manual_has_no_visible_internal_evidence_ids": True,
             "content_based_page_plan_small": True,

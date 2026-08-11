@@ -8,8 +8,10 @@
 4. 登录与状态复用
 5. 稳定采集
 6. 质量检查
-7. 证据图谱回写
-8. 故障处理
+7. Computer Use 收据
+8. 状态与发布语义
+9. 证据图谱回写
+10. 故障处理
 
 ## 1. 目标
 
@@ -98,13 +100,43 @@ python scripts/capture_web_screenshots.py `
 
 默认质量提示会让命令返回非零状态。仅在人工确认提示可接受后使用 `--allow-quality-warnings`。近重复图片只在两个步骤确实需要展示同一状态时设置 `allow_duplicate: true`。
 
-## 7. 证据图谱回写
+## 7. Computer Use 收据
+
+桌面端、Electron、模拟器或复杂交互由 Agent 工具完成实际操作，并把结果写入 `computer-use-session.json`。收据至少包含应用启动结果、是否需要登录及登录结果、每张图对应的动作结果、保存后的图片路径、角色、窗口/URL与时间。示例与架构位于：
+
+- `assets/examples/computer-use-session.example.json`
+- `assets/schemas/computer-use-session.schema.json`
+
+确定性收尾命令：
+
+```powershell
+python scripts/finalize_agent_screenshots.py `
+  --plan CASE_DIR/screenshot-plan.json `
+  --session CASE_DIR/computer-use-session.json `
+  --output CASE_DIR/screenshots `
+  --report CASE_DIR/screenshot-index.json `
+  --evidence-source CASE_DIR/evidence-graph.json `
+  --evidence-output CASE_DIR/evidence-graph.with-screenshots.json
+```
+
+该脚本检查收据结构、启动/登录/动作、图片解码、尺寸、清晰度、SHA-256、时间、角色、URL/窗口和证据映射。项目保留轻量确定性测试，不维护依赖桌面焦点与DPI的 GUI E2E。
+
+## 8. 状态与发布语义
+
+- `mode=skip, state=skipped_by_user`：用户明确跳过，只允许带占位符草稿；
+- `state=awaiting_capture`：尚未执行截图，正式发布失败；
+- `state=failed`：截图、质量或收据校验失败，正式发布失败；
+- `state=captured`：计划中的每张图均存在并通过文件、哈希、清晰度、上下文和映射检查。
+
+非 `skip` 模式下，空 `captures` 列表始终失败；不能依赖空列表上的 `all(...)` 得到通过结论。用户自行截图按计划 ID 写回，使手册中的 `screenshot_ids` 可以直接找到对应图片。
+
+## 9. 证据图谱回写
 
 使用 `--evidence-source` 与 `--evidence-output` 成对参数，将已采集截图写为 `SHOT-<id>` 节点，并按 `evidence_ids` 建立 `supports` 边。保留原图谱不变，先审阅新图谱，再替换正式事实源。
 
 手册正文只引用质量通过、内容已核验的截图。图题使用计划中的 `title`；内部证据标识留在 JSON 和校验报告中，不显示在正式 Word 页面。
 
-## 8. 故障处理
+## 10. 故障处理
 
 - 健康检查失败：核对启动目录、端口、环境变量和应用日志。
 - 登录后仍回到登录页：更新 storage state 或重新完成验证码/单点登录。

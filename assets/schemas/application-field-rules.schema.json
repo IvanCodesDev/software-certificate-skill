@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Application field rules",
+  "type": "object",
+  "required": ["schema_version", "snapshot_date", "enums", "blocking_severities", "fields"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "snapshot_date": {"type": "string"},
+    "enums": {"type": "object"},
+    "blocking_severities": {"type": "array", "items": {"type": "string"}},
+    "fields": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["key", "label", "required"],
+        "properties": {
+          "key": {"type": "string"}, "label": {"type": "string"}, "required": {"type": "boolean"},
+          "enum": {"type": "string"}, "format": {"enum": ["date", "digits"]},
+          "minimum": {"type": "integer", "minimum": 0}, "maximum": {"type": "integer", "minimum": 1},
+          "minimum_severity": {"enum": ["error", "review", "warning"]},
+          "maximum_severity": {"enum": ["error", "review", "warning"]},
+          "live_limit_check": {"type": "boolean"},
+          "required_when": {"type": "object"}
+        }
+      }
+    }
+  }
+}

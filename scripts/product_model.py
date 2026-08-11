@@ -8,6 +8,7 @@ import json
 import os
 import re
 import shutil
+import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -28,6 +29,8 @@ class ProductPaths:
     project: Path
     root: Path
     formal: Path
+    runtime: Path
+    draft: Path
     quality: Path
     screenshots: Path
     work: Path
@@ -36,17 +39,46 @@ class ProductPaths:
 
     @classmethod
     def create(cls, project: Path, output: Path | None = None) -> "ProductPaths":
+        project = project.resolve()
         root = (output or project / "软件著作权申请资料").resolve()
+        runtime_base = Path(os.environ.get(
+            "SOFTWARE_CERTIFICATE_RUNTIME_ROOT",
+            str(Path(tempfile.gettempdir()) / "software-certificate-skill"),
+        )).resolve()
+        runtime_key = sha256_text(f"{str(project).casefold()}\n{str(root).casefold()}")[:20]
+        runtime = runtime_base / runtime_key
         value = cls(
-            project=project.resolve(), root=root,
-            formal=root / "正式资料", quality=root / "质量检查",
-            screenshots=root / "用户截图", work=root / ".工作区",
-            state=root / ".工作区/workflow-state.json",
-            history=root / "历史版本",
+            project=project, root=root, formal=root / "正式资料", runtime=runtime,
+            draft=runtime / "draft", quality=runtime / "quality",
+            screenshots=runtime / "user-screenshots", work=runtime / "work",
+            state=runtime / "workflow-state.json", history=runtime / "history",
         )
-        for path in (value.formal, value.quality, value.screenshots, value.work, value.history):
+        # Only the formal delivery directory is created in the project.  Every
+        # resumable state, screenshot copy, report, render and backup lives in
+        # the operating-system runtime area and never pollutes user delivery.
+        for path in (value.formal, value.runtime, value.draft, value.quality,
+                     value.screenshots, value.work, value.history):
             path.mkdir(parents=True, exist_ok=True)
         return value
+
+
+def prune_delivery_root(paths: ProductPaths) -> None:
+    """Leave only ``正式资料`` in the user-visible delivery root."""
+    root = paths.root.resolve()
+    formal = paths.formal.resolve()
+    project = paths.project.resolve()
+    if root == project or root == Path(root.anchor) or formal.parent != root:
+        raise ValueError(f"unsafe delivery root: {root}")
+    for child in root.iterdir():
+        resolved = child.resolve()
+        if resolved == formal:
+            continue
+        if resolved.parent != root:
+            raise ValueError(f"unsafe delivery child: {resolved}")
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
 
 
 def safe_filename(value: str, fallback: str = "软件") -> str:
@@ -73,6 +105,7 @@ def initial_state(paths: ProductPaths) -> dict[str, Any]:
     return {
         "schema_version": "1.0", "created_at": now_iso(), "updated_at": now_iso(),
         "project_root": str(paths.project), "output_root": str(paths.root),
+        "runtime_root": str(paths.runtime),
         "active_release": None, "previous_release": None,
         "stages": {name: {"status": "pending", "input_sha256": None, "outputs": []}
                    for name in STAGES},

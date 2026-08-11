@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0",
+  "minimum_capability_characters": 180,
+  "minimum_steps_per_capability": 2,
+  "minimum_detail_items": 1,
+  "maximum_repeated_sentence_ratio": 0.2,
+  "maximum_identical_block_signature_count": 2,
+  "minimum_sentence_characters_for_repeat_check": 12
+}

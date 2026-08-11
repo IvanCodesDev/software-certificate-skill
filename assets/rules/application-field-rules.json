@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "snapshot_date": "2026-08-11",
+  "source_level": "B",
+  "source": "中国版权保护中心当前登记系统与提交界面观察",
+  "sources": [
+    {"id": "NCAC-ORDER-1", "level": "A", "title": "计算机软件著作权登记办法",
+     "url": "https://www.ncac.gov.cn/xxfb/flfg/bmgz/202410/t20241015_869486.html"},
+    {"id": "CCPC-2026-FORM", "level": "B", "title": "2026年软件版权登记申请表优化通知转发",
+     "url": "https://www.ssia.org.cn/page63?article_id=2588"}
+  ],
+  "dynamic_review_required": true,
+  "notes": [
+    "字段枚举、条件必填和界面长度可能调整，提交当日应复核当前登记系统。",
+    "长度阈值属于当前系统配置或办理信号，不表述为统一法定要求。",
+    "2026年申请表信号要求软件主要功能500–1300字；其他动态字段未获得可核验的公开上限时，只标记提交当日检查，不用猜测值阻断。"
+  ],
+  "enums": {
+    "holder_type": {"natural_person": "自然人", "legal_person": "法人", "other_organization": "其他组织"},
+    "development_mode": {"independent": "单独开发", "cooperative": "合作开发", "commissioned": "委托开发", "assigned": "下达任务开发"},
+    "software_nature": {"original": "原创", "modified": "修改"},
+    "publication_status": {"published": "已发表", "unpublished": "未发表"},
+    "rights_acquisition": {"original": "原始取得", "successive": "继受取得"},
+    "rights_scope": {"all": "全部权利", "partial": "部分权利"}
+  },
+  "blocking_severities": ["error"],
+  "fields": [
+    {"key": "software_full_name", "label": "软件全称", "required": true},
+    {"key": "software_short_name", "label": "软件简称", "required": false},
+    {"key": "version", "label": "版本号", "required": true},
+    {"key": "rightsholder.type", "label": "著作权人类型", "required": true, "enum": "holder_type"},
+    {"key": "rightsholder.name", "label": "著作权人名称", "required": true},
+    {"key": "rightsholder.id_type", "label": "证件类型", "required": true},
+    {"key": "rightsholder.id_number", "label": "证件号码", "required": true},
+    {"key": "completion_date", "label": "开发完成日期", "required": true, "format": "date"},
+    {"key": "development_mode", "label": "开发方式", "required": true, "enum": "development_mode"},
+    {"key": "software_nature", "label": "软件说明", "required": true, "enum": "software_nature"},
+    {"key": "publication.status", "label": "发表状态", "required": true, "enum": "publication_status"},
+    {"key": "publication.first_publication_date", "label": "首次发表日期", "required": false,
+     "required_when": {"field": "publication.status", "equals": "published"}, "format": "date", "conditional": "仅已发表软件填写"},
+    {"key": "rights_acquisition", "label": "权利取得方式", "required": true, "enum": "rights_acquisition"},
+    {"key": "rights_scope.type", "label": "权利范围", "required": true, "enum": "rights_scope"},
+    {"key": "rights_scope.detail", "label": "部分权利说明", "required": false,
+     "required_when": {"field": "rights_scope.type", "equals": "partial"}, "conditional": "仅部分权利填写"},
+    {"key": "ownership_notes", "label": "权属补充说明", "required": false},
+    {"key": "software_classification", "label": "软件分类", "required": true},
+    {"key": "software_purpose", "label": "软件用途", "required": true, "live_limit_check": true},
+    {"key": "target_users", "label": "目标用户", "required": true},
+    {"key": "development_environment", "label": "开发环境", "required": true, "live_limit_check": true},
+    {"key": "development_tools", "label": "开发工具", "required": true, "live_limit_check": true},
+    {"key": "runtime_platform", "label": "运行平台", "required": true, "live_limit_check": true},
+    {"key": "runtime_support", "label": "运行支撑环境", "required": true, "live_limit_check": true},
+    {"key": "programming_languages", "label": "编程语言", "required": true},
+    {"key": "source_line_count", "label": "源程序量", "required": true, "format": "digits"},
+    {"key": "development_purpose", "label": "开发目的", "required": true, "live_limit_check": true},
+    {"key": "industry_domain", "label": "面向领域/行业", "required": true, "live_limit_check": true},
+    {"key": "main_functions", "label": "主要功能", "required": true, "minimum": 500, "maximum": 1300,
+     "minimum_severity": "error", "auto_expand_from_capabilities": true, "auto_compress": true},
+    {"key": "technical_features", "label": "技术特点", "required": true, "live_limit_check": true}
+  ]
+}

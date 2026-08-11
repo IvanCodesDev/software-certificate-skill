@@ -7,12 +7,36 @@ import hashlib
 import json
 import os
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
 
 SLOT_PATTERN = re.compile(r"【待申请人确认：[^】]+】")
+
+
+def configure_utf8_stdio() -> None:
+    """Keep Chinese progress output deterministic on English Windows runners."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure:
+            try:
+                reconfigure(encoding="utf-8", errors="backslashreplace")
+            except (OSError, ValueError):
+                pass
+
+
+def utf8_subprocess_env(extra: dict[str, str] | None = None) -> dict[str, str]:
+    env = os.environ.copy()
+    env["PYTHONUTF8"] = "1"
+    env["PYTHONIOENCODING"] = "utf-8"
+    if extra:
+        env.update(extra)
+    return env
+
+
+configure_utf8_stdio()
 
 
 def now_iso() -> str:

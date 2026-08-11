@@ -12,10 +12,17 @@ from common import load_json, sha256_file
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", required=True, type=Path, help="软件著作权申请资料目录")
+    parser.add_argument("--output", type=Path, help="旧版：软件著作权申请资料目录")
+    parser.add_argument("--history", type=Path, help="系统临时运行区中的快照目录")
+    parser.add_argument("--formal", type=Path, help="正式资料目录")
     args = parser.parse_args()
-    root = args.output.resolve()
-    history, formal = root / "历史版本", root / "正式资料"
+    if args.history and args.formal:
+        history, formal = args.history.resolve(), args.formal.resolve()
+    elif args.output:
+        root = args.output.resolve()
+        history, formal = root / "历史版本", root / "正式资料"
+    else:
+        parser.error("use --history and --formal")
     candidates = sorted((path for path in history.iterdir() if (path / "snapshot.json").is_file()), reverse=True) if history.exists() else []
     if not candidates:
         print("ROLLBACK=NO_SNAPSHOT")

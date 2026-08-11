@@ -120,6 +120,8 @@ def screenshot_metrics(path: Path | None, required: bool = False) -> dict:
         }
     data = load_json(path)
     captures = data.get("captures", [])
+    mode = data.get("mode", "unknown")
+    state = data.get("state", "unknown")
     issues: list[str] = []
     verified = 0
     evidence_links = 0
@@ -149,15 +151,25 @@ def screenshot_metrics(path: Path | None, required: bool = False) -> dict:
         if not capture.get("role") or not capture.get("url"):
             issues.append(f"{prefix}:context_missing")
         verified += 1
-    if required and not captures:
-        issues.append("screenshot_captures_empty")
+    if mode == "skip":
+        if state != "skipped_by_user":
+            issues.append("screenshot_skip_not_explicit")
+        if required:
+            issues.append("screenshot_skipped_draft_only")
+    else:
+        if state != "captured":
+            issues.append(f"screenshot_state_{state}")
+        if not captures:
+            issues.append("screenshot_captures_empty")
     summary = data.get("summary", {})
     if summary.get("errors", 0):
         issues.append("screenshot_summary_has_errors")
     if summary.get("quality_warnings", 0):
         issues.append("screenshot_summary_has_quality_warnings")
     return {
-        "present": True, "required": required, "path": str(path.resolve()),
+        "present": True, "required": required, "mode": mode, "state": state,
+        "draft_allowed": mode == "skip" and state == "skipped_by_user",
+        "path": str(path.resolve()),
         "sha256": sha256_file(path), "capture_count": len(captures),
         "verified_files": verified, "evidence_links": evidence_links,
         "issues": sorted(set(issues)),

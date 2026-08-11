@@ -15,22 +15,24 @@
     "warning": "333333"
   },
   "fonts": {
-    "title_cn": "SimHei",
-    "heading_cn": "SimHei",
+    "title_cn": "Microsoft YaHei",
+    "heading_cn": "Microsoft YaHei",
+    "heading_latin": "Microsoft YaHei",
     "body_cn": "SimSun",
     "latin": "Times New Roman",
     "mono": "Courier New"
   },
   "sizes": {
-    "cover_title": 22,
+    "cover_title": 20,
     "cover_document": 18,
-    "cover_subtitle": 14,
-    "h1": 16,
-    "h2": 15,
-    "h3": 14,
-    "body": 12,
-    "caption": 10.5,
-    "small": 9
+    "cover_subtitle": 12,
+    "h1": 15,
+    "h2": 13.5,
+    "h3": 12,
+    "body": 11,
+    "table": 10.5,
+    "caption": 9.5,
+    "small": 8.5
   },
   "page": {
     "top_mm": 20,

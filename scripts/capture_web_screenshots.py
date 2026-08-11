@@ -116,6 +116,43 @@ def wait_for_health(url: str, timeout: float) -> None:
     raise RuntimeError(f"health check timed out: {url}; last_error={last_error}")
 
 
+def stop_server_tree(process: subprocess.Popen[Any]) -> list[str]:
+    """Stop the complete fixture/application process tree, not only its shell wrapper."""
+    actions: list[str] = []
+    if process.poll() is not None:
+        return [f"already-exited={process.returncode}"]
+    if os.name == "nt":
+        try:
+            completed = subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                text=True, encoding="utf-8", errors="replace", timeout=20,
+            )
+            actions.append(f"taskkill pid={process.pid} exit={completed.returncode}")
+        except Exception as exc:
+            actions.append(f"taskkill-error={type(exc).__name__}:{exc}")
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+            actions.append(f"sigterm-group={process.pid}")
+        except ProcessLookupError:
+            actions.append(f"group-already-exited={process.pid}")
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        if os.name != "nt":
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+                actions.append(f"sigkill-group={process.pid}")
+            except ProcessLookupError:
+                pass
+        else:
+            process.kill()
+            actions.append(f"direct-kill={process.pid}")
+        process.wait(timeout=5)
+    return actions
+
+
 @contextmanager
 def managed_server(command: str | None, cwd: Path | None, health_url: str | None,
                    startup_timeout: float, log_dir: Path):
@@ -143,16 +180,12 @@ def managed_server(command: str | None, cwd: Path | None, health_url: str | None
                 time.sleep(1)
             yield process
         finally:
-            if process.poll() is None:
-                if os.name == "nt":
-                    process.send_signal(signal.CTRL_BREAK_EVENT)
-                else:
-                    os.killpg(process.pid, signal.SIGTERM)
-                try:
-                    process.wait(timeout=5)
-                except subprocess.TimeoutExpired:
-                    process.kill()
-                    process.wait(timeout=5)
+            cleanup = stop_server_tree(process)
+            save_json(log_dir / "server-process.json", {
+                "command": command, "pid": process.pid, "cleanup": cleanup,
+                "exit_status": process.returncode, "completed_at": now_iso(),
+                "stdout_log": str(stdout_path), "stderr_log": str(stderr_path),
+            })
 
 
 def image_metrics(path: Path) -> dict[str, Any]:
@@ -328,6 +361,7 @@ def run_capture(plan: dict[str, Any], plan_path: Path, output: Path,
         server_cwd_path = Path(server_cwd)
         if not server_cwd_path.is_absolute():
             server_cwd_path = (plan_path.parent / server_cwd_path).resolve()
+    capture_started = now_iso()
     records: list[dict[str, Any]] = []
     previous: list[dict[str, Any]] = []
     runtime = {"console": [], "page_errors": [], "request_failures": []}
@@ -468,6 +502,7 @@ def run_capture(plan: dict[str, Any], plan_path: Path, output: Path,
                 records.append(record)
                 save_json(output / "screenshot-index.json", {
                     "schema_version": "1.0", "generated_at": now_iso(),
+                    "mode": "chrome_devtools", "state": "capturing",
                     "plan": str(plan_path), "base_url": base_url, "captures": records,
                 })
                 if fail_fast and record["status"] != "pass":
@@ -483,14 +518,20 @@ def run_capture(plan: dict[str, Any], plan_path: Path, output: Path,
             if browser:
                 browser.close()
 
+    passed = sum(r["status"] == "pass" for r in records)
+    errors = sum(r["status"] == "error" for r in records)
+    warnings = sum(r["status"] == "quality_warning" for r in records)
+    state = "captured" if passed == len(plan["captures"]) and not errors and not warnings else "failed"
     report = {
         "schema_version": "1.0", "generated_at": now_iso(), "plan": str(plan_path),
+        "mode": "chrome_devtools", "state": state,
         "base_url": base_url, "output_dir": str(output), "captures": records,
+        "execution": {"started_at": capture_started, "completed_at": now_iso(),
+                      "server_command": server.get("command"), "setup_actions": len(plan.get("setup", []))},
         "summary": {
             "requested": len(plan["captures"]), "completed": len(records),
-            "passed": sum(r["status"] == "pass" for r in records),
-            "quality_warnings": sum(r["status"] == "quality_warning" for r in records),
-            "errors": sum(r["status"] == "error" for r in records),
+            "passed": passed, "quality_warnings": warnings, "errors": errors,
+            "missing_planned": max(0, len(plan["captures"]) - passed),
         },
     }
     save_json(output / "screenshot-index.json", report)

@@ -30,9 +30,27 @@
           "entry": {"type": "string"}, "visible_elements": {"type": "string"},
           "steps": {"type": "array", "items": {"type": "string"}, "minItems": 1},
           "restrictions": {"type": "array", "items": {"type": "string"}},
+          "operation_type": {"enum": ["data_entry", "query", "approval", "analysis", "monitoring", "configuration", "file_processing", "generic"]},
+          "prerequisites": {"type": "array", "items": {"type": "string"}},
+          "inputs": {"type": "array", "items": {"type": "string"}},
+          "outputs": {"type": "array", "items": {"type": "string"}},
+          "business_rules": {"type": "array", "items": {"type": "string"}},
+          "state_changes": {"type": "array", "items": {"type": "string"}},
+          "error_cases": {"type": "array", "items": {"type": "object"}},
+          "result_fields": {"type": "array", "items": {"type": "string"}},
+          "data_scope": {"type": "string"},
           "success_feedback": {"type": "string"}, "error_feedback": {"type": "string"},
           "evidence_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1},
-          "screenshot_ids": {"type": "array", "items": {"type": "string"}}
+          "screenshot_ids": {"type": "array", "items": {"type": "string"}},
+          "manual_titles": {
+            "type": "object",
+            "properties": {
+              "procedure": {"type": "string"},
+              "detail": {"type": "string"},
+              "exception": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
         }
       }
     },

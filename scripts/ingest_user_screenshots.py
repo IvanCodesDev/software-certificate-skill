@@ -43,7 +43,8 @@ def main() -> int:
                 if (width, height) == (metrics["width"], metrics["height"]) and hamming_hex(prior_hash, metrics["dhash"]) <= 1:
                     duplicate_of = prior_id
                     break
-        shot_id = f"user-shot-{index:03d}"
+        planned_item = planned[index - 1] if index <= len(planned) else {}
+        shot_id = planned_item.get("id") or f"user-shot-{index:03d}"
         findings = quality_findings(metrics, {
             "min_width": 900, "min_height": 500, "min_entropy": 0.8,
             "min_content_ratio": 0.002, "max_near_white_ratio": 0.997,
@@ -63,21 +64,27 @@ def main() -> int:
             "url": "user-supplied", "evidence_ids": evidence_by_index[index - 1] if index <= len(evidence_by_index) else [],
             "captured_at": None, "metrics": metrics, "quality_findings": findings,
         })
+    missing_planned = max(0, len(planned) - len(files))
+    passed = sum(item["status"] == "pass" for item in captures)
+    warnings = sum(item["status"] == "quality_warning" for item in captures)
+    unplanned_files = max(0, len(files) - len(planned))
+    state = "captured" if planned and len(files) == len(planned) and passed == len(planned) \
+        and not warnings and not missing_planned else "failed"
     report = {
         "schema_version": "1.0", "generated_at": now_iso(), "mode": "user_supplied",
-        "source": str(source), "output": str(output), "captures": captures,
+        "state": state, "source": str(source), "output": str(output), "captures": captures,
         "summary": {
             "requested": len(planned), "provided": len(files),
-            "passed": sum(item["status"] == "pass" for item in captures),
-            "quality_warnings": sum(item["status"] == "quality_warning" for item in captures),
+            "passed": passed, "quality_warnings": warnings,
             "duplicates": sum(any(f.get("code") == "near_duplicate" for f in item["quality_findings"]) for item in captures),
-            "missing_planned": max(0, len(planned) - len(files)), "errors": 0,
+            "missing_planned": missing_planned, "unplanned_files": unplanned_files,
+            "errors": 0 if state == "captured" else 1,
         }
     }
     save_json(args.report.resolve(), report)
     print(f"SCREENSHOT_INDEX={args.report.resolve()}")
     print(f"PROVIDED={len(files)} PASSED={report['summary']['passed']} WARNINGS={report['summary']['quality_warnings']} MISSING={report['summary']['missing_planned']}")
-    return 0 if not report["summary"]["quality_warnings"] else 3
+    return 0 if state == "captured" else 3
 
 
 if __name__ == "__main__":

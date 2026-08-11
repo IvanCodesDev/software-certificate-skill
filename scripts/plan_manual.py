@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a content-sized manual storyboard without padding to a fixed page target."""
+"""Create a content-sized manual storyboard with a preferred 40–60 page range and no filler."""
 
 from __future__ import annotations
 
@@ -95,13 +95,14 @@ def main() -> int:
     debt = [item["page_no"] for item in pages if item["status"] == "evidence_debt"]
     result = {
         "schema_version": "2.0", "generated_at": now_iso(),
-        "target_pages": "content_based" if explicit_max is None else explicit_max,
+        "target_pages": "content_based_preferred_40_60" if explicit_max is None else explicit_max,
+        "preferred_range": [40, 60],
         "planned_pages": len(pages), "planning_mode": "content_based_no_padding",
         "facts_sha256": sha256_text(__import__("json").dumps(facts, ensure_ascii=False, sort_keys=True)),
         "facts_slots": find_slots(facts), "candidate_capabilities_used": used,
         "evidence_debt_pages": debt, "release_ready": not debt and facts_ready,
         "pages": pages,
-        "note": "页数由真实功能、操作复杂度、异常路径和截图证据决定，不设置40页、60页或66页下限。",
+        "note": "一般以40–60逻辑页为优选区间；页数由真实功能、操作复杂度、异常路径和截图证据决定，小型项目可低于40页，不为页数填充无证据内容。",
     }
     save_json(args.output.resolve(), result)
     print(f"MANUAL_PLAN={args.output.resolve()}")

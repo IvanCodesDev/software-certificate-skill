@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate copy-ready application-form text and an internal field validation model."""
+"""Generate application text using an updateable current-system field rule set."""
 
 from __future__ import annotations
 
@@ -10,16 +10,9 @@ from typing import Any
 
 from common import load_json, now_iso, save_json
 
-DEVELOPMENT = {"independent": "单独开发", "cooperative": "合作开发", "commissioned": "委托开发", "assigned": "下达任务开发"}
-NATURE = {"original": "原创", "modified": "修改"}
-PUBLICATION = {"published": "已发表", "unpublished": "未发表"}
-ACQUISITION = {"original": "原始取得", "successive": "继受取得"}
-SCOPE = {"all": "全部权利", "partial": "部分权利"}
-HOLDER_TYPE = {"natural_person": "自然人", "legal_person": "法人", "other_organization": "其他组织"}
-FIELD_LIMITS = {
-    "开发目的": 500, "面向领域": 500, "主要功能": 1300, "技术特点": 500,
-    "运行支撑环境": 500, "开发环境": 500,
-}
+
+DEFAULT_RULES = Path(__file__).resolve().parents[1] / "assets/rules/application-field-rules.json"
+RULES_SCHEMA = Path(__file__).resolve().parents[1] / "assets/schemas/application-field-rules.schema.json"
 
 
 def compact(value: Any) -> str:
@@ -30,6 +23,15 @@ def join_values(value: Any) -> str:
     if isinstance(value, list):
         return "、".join(compact(item) for item in value if compact(item))
     return compact(value)
+
+
+def nested_get(value: dict[str, Any], path: str) -> Any:
+    current: Any = value
+    for part in path.split("."):
+        if not isinstance(current, dict):
+            return ""
+        current = current.get(part, "")
+    return current
 
 
 def compress(value: str, maximum: int) -> tuple[str, bool]:
@@ -44,20 +46,66 @@ def compress(value: str, maximum: int) -> tuple[str, bool]:
         output += sentence
     if not output:
         output = text[:maximum]
-    return output.rstrip("，、；; ") + ("。" if not output.endswith("。") else ""), True
+    output = output.rstrip("，、；; ")
+    if output and not output.endswith("。"):
+        output = output[:max(0, maximum - 1)].rstrip("，、；; ") + "。"
+    return output[:maximum], True
 
 
-def field(name: str, value: Any, required: bool = True, conditional: str | None = None) -> dict[str, Any]:
+def expand_main_functions(business: dict[str, Any], minimum: int) -> tuple[str, bool]:
+    text = compact(business.get("main_functions"))
+    if len(text) >= minimum:
+        return text, False
+    parts = [text] if text else []
+    for capability in business.get("capabilities", []):
+        steps = "；".join(compact(item) for item in capability.get("steps", []) if compact(item))
+        restrictions = "；".join(compact(item) for item in capability.get("restrictions", []) if compact(item))
+        paragraph = (
+            f"{compact(capability.get('name'))}用于{compact(capability.get('purpose'))}。"
+            f"使用者从{compact(capability.get('entry'))}进入，可见{compact(capability.get('visible_elements'))}。"
+            f"操作过程包括{steps}。完成后{compact(capability.get('success_feedback'))}；"
+            f"出现异常时{compact(capability.get('error_feedback'))}。"
+            + (f"业务限制包括{restrictions}。" if restrictions else "")
+        )
+        parts.append(paragraph)
+        text = "".join(parts)
+        if len(text) >= minimum:
+            break
+    return "".join(parts), len(parts) > (1 if business.get("main_functions") else 0)
+
+
+def format_value(value: Any, rule: dict[str, Any]) -> tuple[str, str | None]:
     text = join_values(value)
-    maximum = FIELD_LIMITS.get(name)
-    compressed = False
-    if maximum:
-        text, compressed = compress(text, maximum)
-    return {
-        "name": name, "value": text, "required": required, "conditional": conditional,
-        "characters": len(text), "maximum": maximum, "compressed": compressed,
-        "status": "pass" if text or not required else "missing",
-    }
+    format_name = rule.get("format")
+    if format_name == "digits":
+        if isinstance(value, int) and not isinstance(value, bool):
+            return str(value), None
+        return (text, None) if re.fullmatch(r"\d+", text) else (text, "format_digits")
+    if format_name == "date" and text and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+        return text, "format_date"
+    return text, None
+
+
+def condition_required(rule: dict[str, Any], facts: dict[str, Any]) -> bool:
+    condition = rule.get("required_when")
+    return bool(rule.get("required")) or bool(condition and nested_get(facts, condition.get("field", "")) == condition.get("equals"))
+
+
+def validate_rules(rules: dict[str, Any]) -> None:
+    try:
+        import jsonschema
+        jsonschema.Draft202012Validator(load_json(RULES_SCHEMA)).validate(rules)
+    except ImportError:
+        pass
+    keys = [item.get("key") for item in rules.get("fields", [])]
+    duplicates = sorted({key for key in keys if keys.count(key) > 1})
+    if duplicates:
+        raise ValueError(f"字段规则存在重复键：{duplicates}")
+    for rule in rules.get("fields", []):
+        if rule.get("enum") and rule["enum"] not in rules.get("enums", {}):
+            raise ValueError(f"字段{rule.get('key')}引用了未定义枚举{rule['enum']}")
+        if rule.get("minimum") is not None and rule.get("maximum") is not None and rule["minimum"] > rule["maximum"]:
+            raise ValueError(f"字段{rule.get('key')}的最小长度大于最大长度")
 
 
 def main() -> int:
@@ -66,75 +114,92 @@ def main() -> int:
     parser.add_argument("--analysis", required=True, type=Path)
     parser.add_argument("--business", required=True, type=Path)
     parser.add_argument("--provenance", type=Path)
+    parser.add_argument("--rules", type=Path, default=DEFAULT_RULES)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--model-output", required=True, type=Path)
     args = parser.parse_args()
-    facts = load_json(args.facts)
-    analysis = load_json(args.analysis)
-    business = load_json(args.business)
+    facts, analysis, business = load_json(args.facts), load_json(args.analysis), load_json(args.business)
     provenance = load_json(args.provenance) if args.provenance and args.provenance.exists() else {}
-    holder = facts.get("rightsholder", {})
-    publication = facts.get("publication", {})
-    rights_scope = facts.get("rights_scope", {})
-    tech = analysis.get("technology", {})
-    inferences = analysis.get("field_inferences", {})
-    languages = inferences.get("programming_languages", {}).get("suggested_value", [])
-    source_lines = provenance.get("full_line_count") or inferences.get("source_line_count", {}).get("suggested_value", "")
-    fields = [
-        field("软件全称", facts.get("software_full_name")),
-        field("软件简称", facts.get("software_short_name", ""), required=False),
-        field("版本号", facts.get("version")),
-        field("著作权人类型", HOLDER_TYPE.get(holder.get("type"), holder.get("type"))),
-        field("著作权人名称", holder.get("name")),
-        field("证件类型", holder.get("id_type")),
-        field("证件号码", holder.get("id_number")),
-        field("开发完成日期", facts.get("completion_date")),
-        field("开发方式", DEVELOPMENT.get(facts.get("development_mode"), facts.get("development_mode"))),
-        field("软件说明", NATURE.get(facts.get("software_nature"), facts.get("software_nature"))),
-        field("发表状态", PUBLICATION.get(publication.get("status"), publication.get("status"))),
-        field("首次发表日期", publication.get("first_publication_date", ""), required=publication.get("status") == "published",
-              conditional="仅已发表软件填写"),
-        field("权利取得方式", ACQUISITION.get(facts.get("rights_acquisition"), facts.get("rights_acquisition"))),
-        field("权利范围", SCOPE.get(rights_scope.get("type"), rights_scope.get("type"))),
-        field("部分权利说明", rights_scope.get("detail", ""), required=rights_scope.get("type") == "partial",
-              conditional="仅部分权利填写"),
-        field("权属补充说明", facts.get("ownership_notes", ""), required=False),
-        field("软件分类", join_values(business.get("software_classification") or tech.get("project_types"))),
-        field("软件用途", business.get("software_purpose")),
-        field("目标用户", business.get("target_users")),
-        field("面向行业", business.get("industry_domain")),
-        field("开发环境", business.get("development_environment") or join_values(tech.get("frameworks"))),
-        field("开发工具", business.get("development_tools") or join_values(inferences.get("development_tools", {}).get("suggested_value", []))),
-        field("运行平台", business.get("runtime_platform") or join_values(tech.get("project_types"))),
-        field("运行支撑环境", business.get("runtime_support")),
-        field("编程语言", join_values(languages)),
-        field("源程序量", f"{source_lines} 行" if source_lines != "" else ""),
-        field("开发目的", business.get("development_purpose")),
-        field("面向领域", business.get("industry_domain")),
-        field("主要功能", business.get("main_functions")),
-        field("技术特点", business.get("technical_features")),
-    ]
-    issues = []
-    for item in fields:
-        if item["status"] == "missing":
-            issues.append({"field": item["name"], "code": "required_missing"})
-        if item["maximum"] and item["characters"] > item["maximum"]:
-            issues.append({"field": item["name"], "code": "over_limit"})
-    main_function = next(item for item in fields if item["name"] == "主要功能")
-    if 0 < main_function["characters"] < 500:
-        issues.append({"field": "主要功能", "code": "below_current_form_guidance_500", "severity": "review"})
-    lines = []
+    rules = load_json(args.rules.resolve())
+    validate_rules(rules)
+    tech, inferences = analysis.get("technology", {}), analysis.get("field_inferences", {})
+    source_lines = provenance.get("original_line_count")
+    if source_lines is None and provenance.get("files"):
+        source_lines = sum(int(item.get("original_lines", 0)) for item in provenance["files"])
+    if source_lines is None:
+        source_lines = provenance.get("full_line_count")
+    if source_lines is None:
+        source_lines = inferences.get("source_line_count", {}).get("suggested_value", "")
+    values: dict[str, Any] = {
+        **facts,
+        "software_classification": business.get("software_classification") or tech.get("project_types"),
+        "software_purpose": business.get("software_purpose"), "target_users": business.get("target_users"),
+        "industry_domain": business.get("industry_domain"),
+        "development_environment": business.get("development_environment") or tech.get("frameworks"),
+        "development_tools": business.get("development_tools") or inferences.get("development_tools", {}).get("suggested_value", []),
+        "runtime_platform": business.get("runtime_platform") or tech.get("project_types"),
+        "runtime_support": business.get("runtime_support"),
+        "programming_languages": inferences.get("programming_languages", {}).get("suggested_value", []),
+        "source_line_count": source_lines, "development_purpose": business.get("development_purpose"),
+        "main_functions": business.get("main_functions"), "technical_features": business.get("technical_features"),
+    }
+    enums = rules.get("enums", {})
+    fields: list[dict[str, Any]] = []
+    issues: list[dict[str, Any]] = []
+    for rule in rules.get("fields", []):
+        required = condition_required(rule, facts)
+        raw = nested_get(values, rule["key"])
+        expanded = False
+        if rule.get("auto_expand_from_capabilities"):
+            raw, expanded = expand_main_functions(business, int(rule.get("minimum", 0)))
+        enum_name = rule.get("enum")
+        enum_valid = True
+        if enum_name:
+            enum_values = enums.get(enum_name, {})
+            enum_valid = raw in enum_values
+            raw = enum_values.get(raw, raw)
+        text, format_issue = format_value(raw, rule)
+        compressed = False
+        if rule.get("maximum") and rule.get("auto_compress"):
+            text, compressed = compress(text, int(rule["maximum"]))
+        item = {
+            "key": rule["key"], "name": rule["label"], "value": text,
+            "required": required, "conditional": rule.get("conditional"),
+            "characters": len(text), "minimum": rule.get("minimum"), "maximum": rule.get("maximum"),
+            "format": rule.get("format"), "enum": enum_name,
+            "live_limit_check": bool(rule.get("live_limit_check")),
+            "compressed": compressed, "expanded_from_capabilities": expanded,
+            "status": "pass" if text or not required else "missing",
+        }
+        fields.append(item)
+        if required and not text:
+            issues.append({"field": rule["label"], "code": "required_missing", "severity": "error"})
+        if enum_name and not enum_valid:
+            issues.append({"field": rule["label"], "code": "enum_invalid", "severity": "error"})
+        if format_issue:
+            issues.append({"field": rule["label"], "code": format_issue, "severity": "error"})
+        if rule.get("minimum") and text and len(text) < int(rule["minimum"]):
+            issues.append({"field": rule["label"], "code": "below_minimum",
+                           "minimum": rule["minimum"], "actual": len(text),
+                           "severity": rule.get("minimum_severity", "review")})
+        if rule.get("maximum") and len(text) > int(rule["maximum"]):
+            issues.append({"field": rule["label"], "code": "over_limit",
+                           "severity": rule.get("maximum_severity", "error")})
+    lines: list[str] = []
     for item in fields:
         if item["value"] or item["required"]:
             lines.extend([f"{item['name']}：{item['value']}", ""])
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+    blocking = set(rules.get("blocking_severities", ["error"]))
     model = {
-        "schema_version": "1.0", "generated_at": now_iso(),
-        "rules_snapshot": "2026-08-11", "fields": fields, "issues": issues,
-        "release_ready": not any(item.get("code") in {"required_missing", "over_limit"} for item in issues),
-        "notes": ["字段顺序用于复制填写；提交当日仍以当前登记系统表单为准。",
-                  "500–1300 字为当前办理信号，不升级为通用法定要求。"],
+        "schema_version": "1.1", "generated_at": now_iso(),
+        "rules_snapshot": rules.get("snapshot_date"), "rules_path": str(args.rules.resolve()),
+        "rules_source_level": rules.get("source_level"), "dynamic_review_required": rules.get("dynamic_review_required", True),
+        "fields": fields, "issues": issues,
+        "live_limit_fields": [item["name"] for item in fields if item.get("live_limit_check")],
+        "release_ready": not any(item.get("severity") in blocking for item in issues),
+        "notes": rules.get("notes", []),
     }
     save_json(args.model_output.resolve(), model)
     print(f"APPLICATION_TEXT={args.output.resolve()}")

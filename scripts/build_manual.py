@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import Any
 
 from common import load_json, sha256_file
 
@@ -14,7 +15,8 @@ try:
     from docx.enum.section import WD_SECTION
     from docx.enum.style import WD_STYLE_TYPE
     from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
-    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_LINE_SPACING, WD_TAB_ALIGNMENT
+    from docx.enum.text import (WD_ALIGN_PARAGRAPH, WD_BREAK, WD_LINE_SPACING,
+                                WD_TAB_ALIGNMENT, WD_TAB_LEADER)
     from docx.oxml import OxmlElement
     from docx.oxml.ns import qn
     from docx.shared import Cm, Mm, Pt, RGBColor
@@ -27,8 +29,27 @@ def color(value: str) -> RGBColor:
 
 
 def set_east_asia(run, font_name: str) -> None:
+    """Set all OOXML font slots so numbers and Chinese never split families."""
     run.font.name = font_name
-    run._element.rPr.rFonts.set(qn("w:eastAsia"), font_name)
+    r_pr = run._element.get_or_add_rPr()
+    fonts = r_pr.get_or_add_rFonts()
+    for key in ("asciiTheme", "hAnsiTheme", "eastAsiaTheme", "cstheme"):
+        fonts.attrib.pop(qn(f"w:{key}"), None)
+    for key in ("ascii", "hAnsi", "eastAsia", "cs"):
+        fonts.set(qn(f"w:{key}"), font_name)
+
+
+def set_style_fonts(style, chinese: str, latin: str | None = None) -> None:
+    latin = latin or chinese
+    style.font.name = latin
+    r_pr = style.element.get_or_add_rPr()
+    fonts = r_pr.get_or_add_rFonts()
+    for key in ("asciiTheme", "hAnsiTheme", "eastAsiaTheme", "cstheme"):
+        fonts.attrib.pop(qn(f"w:{key}"), None)
+    fonts.set(qn("w:ascii"), latin)
+    fonts.set(qn("w:hAnsi"), latin)
+    fonts.set(qn("w:eastAsia"), chinese)
+    fonts.set(qn("w:cs"), latin)
 
 
 def set_cell_shading(cell, fill: str) -> None:
@@ -126,48 +147,53 @@ def ensure_custom_style(doc: Document, name: str, base: str, size: float, font: 
     style.font.size = Pt(size)
     style.font.bold = bold
     style.font.color.rgb = color(color_hex)
-    style.font.name = font
-    style.element.rPr.rFonts.set(qn("w:eastAsia"), font)
+    set_style_fonts(style, font)
     return style
 
 
 def configure_styles(doc: Document, theme: dict) -> None:
     fonts, sizes, colors = theme["fonts"], theme["sizes"], theme["colors"]
     normal = doc.styles["Normal"]
-    normal.font.name = fonts["body_cn"]
-    normal._element.rPr.rFonts.set(qn("w:eastAsia"), fonts["body_cn"])
+    set_style_fonts(normal, fonts["body_cn"], fonts["latin"])
     normal.font.size = Pt(sizes["body"])
     normal.font.color.rgb = color(colors["text"])
     pf = normal.paragraph_format
-    pf.line_spacing = 1.5
-    pf.space_after = Pt(5)
+    pf.line_spacing = 1.45
+    pf.space_after = Pt(4)
+    pf.first_line_indent = Mm(7.4)
+    pf.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     pf.widow_control = True
 
     heading_specs = [("Heading 1", sizes["h1"], 0), ("Heading 2", sizes["h2"], 1), ("Heading 3", sizes["h3"], 2)]
     for name, size, level in heading_specs:
         style = doc.styles[name]
-        style.font.name = fonts["heading_cn"]
-        style._element.rPr.rFonts.set(qn("w:eastAsia"), fonts["heading_cn"])
+        set_style_fonts(style, fonts["heading_cn"], fonts.get("heading_latin", fonts["heading_cn"]))
         style.font.size = Pt(size)
         style.font.bold = True
         style.font.color.rgb = color(colors["text"])
-        style.paragraph_format.space_before = Pt(8 if level == 0 else 6)
-        style.paragraph_format.space_after = Pt(6 if level == 0 else 4)
+        style.paragraph_format.space_before = Pt(10 if level == 0 else 7)
+        style.paragraph_format.space_after = Pt(8 if level == 0 else 5)
+        style.paragraph_format.first_line_indent = Pt(0)
         style.paragraph_format.keep_with_next = True
         set_outline_level(style, level)
 
     ensure_custom_style(doc, "Manual Eyebrow", "Normal", sizes["small"], fonts["latin"], colors["secondary"], True)
     lead = ensure_custom_style(doc, "Manual Lead", "Normal", sizes["body"], fonts["body_cn"], colors["text"])
-    lead.paragraph_format.space_after = Pt(6)
-    lead.paragraph_format.line_spacing = 1.5
+    set_style_fonts(lead, fonts["body_cn"], fonts["latin"])
+    lead.paragraph_format.first_line_indent = Pt(0)
+    lead.paragraph_format.space_after = Pt(8)
+    lead.paragraph_format.line_spacing = 1.4
+    lead.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     caption = ensure_custom_style(doc, "Manual Caption", "Normal", sizes["caption"], fonts["body_cn"], colors["text"])
     caption.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    caption.paragraph_format.first_line_indent = Pt(0)
     caption.paragraph_format.space_before = Pt(3)
     caption.paragraph_format.space_after = Pt(6)
     evidence = ensure_custom_style(doc, "Evidence Line", "Normal", sizes["small"], fonts["mono"], colors["secondary"])
     evidence.paragraph_format.space_before = Pt(4)
     toc_title = ensure_custom_style(doc, "Manual Toc Title", "Normal", sizes["h1"], fonts["heading_cn"], colors["primary"], True)
     toc_title.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    toc_title.paragraph_format.first_line_indent = Pt(0)
     toc_title.paragraph_format.space_before = Pt(8)
     toc_title.paragraph_format.space_after = Pt(8)
 
@@ -290,11 +316,84 @@ def add_cover(doc: Document, page: dict, facts: dict, document: dict, theme: dic
     run.font.size = Pt(sizes["body"])
 
 
-def add_toc(doc: Document, page: dict, theme: dict) -> None:
+def add_bookmark(paragraph, name: str, bookmark_id: int) -> None:
+    start = OxmlElement("w:bookmarkStart")
+    start.set(qn("w:id"), str(bookmark_id))
+    start.set(qn("w:name"), name)
+    end = OxmlElement("w:bookmarkEnd")
+    end.set(qn("w:id"), str(bookmark_id))
+    p_pr = paragraph._p.find(qn("w:pPr"))
+    insert_at = 1 if p_pr is not None else 0
+    paragraph._p.insert(insert_at, start)
+    paragraph._p.append(end)
+
+
+def add_hyperlink(paragraph, text: str, anchor: str, theme: dict, bold: bool = False) -> None:
+    hyperlink = OxmlElement("w:hyperlink")
+    hyperlink.set(qn("w:anchor"), anchor)
+    hyperlink.set(qn("w:history"), "1")
+    run = OxmlElement("w:r")
+    r_pr = OxmlElement("w:rPr")
+    fonts = OxmlElement("w:rFonts")
+    fonts.set(qn("w:ascii"), theme["fonts"]["latin"])
+    fonts.set(qn("w:hAnsi"), theme["fonts"]["latin"])
+    fonts.set(qn("w:eastAsia"), theme["fonts"]["body_cn"])
+    r_pr.append(fonts)
+    color_node = OxmlElement("w:color")
+    color_node.set(qn("w:val"), "000000")
+    r_pr.append(color_node)
+    if bold:
+        r_pr.append(OxmlElement("w:b"))
+    run.append(r_pr)
+    value = OxmlElement("w:t")
+    value.text = text
+    run.append(value)
+    hyperlink.append(run)
+    paragraph._p.append(hyperlink)
+
+
+def append_field_start(paragraph, instruction: str) -> None:
+    run = paragraph.add_run()
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    begin.set(qn("w:dirty"), "true")
+    instr = OxmlElement("w:instrText")
+    instr.set(qn("xml:space"), "preserve")
+    instr.text = instruction
+    separate = OxmlElement("w:fldChar")
+    separate.set(qn("w:fldCharType"), "separate")
+    for node in (begin, instr, separate):
+        run._r.append(node)
+
+
+def append_field_end(paragraph) -> None:
+    run = paragraph.add_run()
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    run._r.append(end)
+
+
+def add_toc(doc: Document, page: dict, theme: dict, entries: list[dict[str, Any]]) -> None:
     doc.add_paragraph(page.get("title", "目录"), style="Manual Toc Title")
-    toc = doc.add_paragraph()
-    toc.paragraph_format.space_before = Pt(6)
-    add_field(toc, ' TOC \\o "1-3" \\h \\z \\u ', "右键并选择“更新域”，或运行目录刷新脚本。")
+    if not entries:
+        toc = doc.add_paragraph()
+        add_field(toc, ' TOC \\o "1-3" \\h \\z \\u ', "更新目录")
+        return
+    for index, entry in enumerate(entries):
+        toc = doc.add_paragraph()
+        toc.paragraph_format.space_before = Pt(2 if index else 6)
+        toc.paragraph_format.space_after = Pt(2)
+        if int(entry["level"]) > 1:
+            toc.paragraph_format.left_indent = Mm(6 * (int(entry["level"]) - 1))
+        toc.paragraph_format.tab_stops.add_tab_stop(Mm(160), WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS)
+        if index == 0:
+            append_field_start(toc, ' TOC \\o "1-3" \\h \\z \\u ')
+        add_hyperlink(toc, str(entry["title"]), str(entry["bookmark"]), theme,
+                      bold=int(entry["level"]) == 1)
+        toc.add_run("\t")
+        add_field(toc, f" PAGEREF {entry['bookmark']} \\h ", str(index + 1))
+        if index == len(entries) - 1:
+            append_field_end(toc)
 
 
 def add_evidence_line(doc: Document, evidence_ids: list[str], theme: dict) -> None:
@@ -302,6 +401,24 @@ def add_evidence_line(doc: Document, evidence_ids: list[str], theme: dict) -> No
         return
     p = doc.add_paragraph(style="Evidence Line")
     p.add_run("EVIDENCE  ·  " + "  /  ".join(evidence_ids))
+
+
+def format_cell(cell, theme: dict, *, bold: bool = False,
+                alignment=WD_ALIGN_PARAGRAPH.LEFT, size: float | None = None) -> None:
+    fonts, sizes = theme["fonts"], theme["sizes"]
+    for paragraph in cell.paragraphs:
+        paragraph.alignment = alignment
+        paragraph.paragraph_format.first_line_indent = Pt(0)
+        paragraph.paragraph_format.left_indent = Pt(0)
+        paragraph.paragraph_format.right_indent = Pt(0)
+        paragraph.paragraph_format.space_before = Pt(0)
+        paragraph.paragraph_format.space_after = Pt(0)
+        paragraph.paragraph_format.line_spacing = 1.25
+        for run in paragraph.runs:
+            set_east_asia(run, fonts["heading_cn"] if bold else fonts["body_cn"])
+            run.font.size = Pt(size or sizes.get("table", 10.5))
+            run.font.bold = bold
+            run.font.color.rgb = color(theme["colors"]["text"])
 
 
 def add_table(doc: Document, block: dict, theme: dict) -> None:
@@ -312,17 +429,18 @@ def add_table(doc: Document, block: dict, theme: dict) -> None:
         return
     table = doc.add_table(rows=1, cols=len(headers))
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    table.autofit = True
+    table.autofit = False
+    widths = block.get("widths_mm")
+    if not widths:
+        widths = [38, 122] if len(headers) == 2 else [160 / len(headers)] * len(headers)
     header_cells = table.rows[0].cells
     for idx, header in enumerate(headers):
         header_cells[idx].text = header
         set_cell_shading(header_cells[idx], colors["panel"])
         set_cell_border(header_cells[idx], colors["rule"], 4)
         set_cell_margins(header_cells[idx])
-        for run in header_cells[idx].paragraphs[0].runs:
-            set_east_asia(run, fonts["heading_cn"])
-            run.font.bold = True
-            run.font.color.rgb = color(colors["text"])
+        header_cells[idx].width = Mm(float(widths[idx] if idx < len(widths) else widths[-1]))
+        format_cell(header_cells[idx], theme, bold=True, alignment=WD_ALIGN_PARAGRAPH.CENTER)
     repeat_table_header(table.rows[0])
     keep_table_row(table.rows[0])
     for row_index, values in enumerate(rows):
@@ -331,9 +449,13 @@ def add_table(doc: Document, block: dict, theme: dict) -> None:
             cell.text = str(values[idx]) if idx < len(values) else ""
             set_cell_border(cell, colors["rule"], 4)
             set_cell_margins(cell)
+            cell.width = Mm(float(widths[idx] if idx < len(widths) else widths[-1]))
             cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+            format_cell(cell, theme)
         keep_table_row(table.rows[-1])
-    doc.add_paragraph().paragraph_format.space_after = Pt(1)
+    # Do not append a spacer paragraph after a table.  When the table exactly
+    # fills a page, Word/LibreOffice can push that otherwise-empty paragraph to
+    # a new page and create a header/footer-only trailing sheet.
 
 
 def add_note(doc: Document, block: dict, theme: dict) -> None:
@@ -345,6 +467,7 @@ def add_note(doc: Document, block: dict, theme: dict) -> None:
     set_cell_border(cell, colors["rule"], 4)
     set_cell_margins(cell, 160, 200, 160, 200)
     p = cell.paragraphs[0]
+    format_cell(cell, theme)
     if block.get("title"):
         r = p.add_run(str(block["title"]) + "  ")
         set_east_asia(r, fonts["heading_cn"])
@@ -352,7 +475,48 @@ def add_note(doc: Document, block: dict, theme: dict) -> None:
         r.font.color.rgb = color(colors["secondary"])
     r = p.add_run(str(block.get("text", "")))
     set_east_asia(r, fonts["body_cn"])
-    doc.add_paragraph().paragraph_format.space_after = Pt(1)
+    # The following block already owns its top spacing; an empty paragraph here
+    # can become a nearly empty carry-over page after a tall callout.
+
+
+def add_facts(doc: Document, block: dict, theme: dict) -> None:
+    items = [item for item in block.get("items", []) if item.get("label") or item.get("value")]
+    if not items:
+        return
+    colors = theme["colors"]
+    columns = min(3, len(items))
+    for start in range(0, len(items), columns):
+        group = items[start:start + columns]
+        table = doc.add_table(rows=2, cols=len(group))
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        table.autofit = False
+        width = 160 / len(group)
+        for index, item in enumerate(group):
+            label_cell, value_cell = table.cell(0, index), table.cell(1, index)
+            label_cell.text = str(item.get("label", ""))
+            value_cell.text = str(item.get("value", ""))
+            for cell in (label_cell, value_cell):
+                cell.width = Mm(width)
+                set_cell_border(cell, colors["rule"], 4)
+                set_cell_margins(cell, 100, 140, 100, 140)
+                cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+            set_cell_shading(label_cell, colors["soft"])
+            format_cell(label_cell, theme, bold=True, alignment=WD_ALIGN_PARAGRAPH.CENTER, size=9.5)
+            format_cell(value_cell, theme, alignment=WD_ALIGN_PARAGRAPH.CENTER, size=10.5)
+        # Avoid empty inter-table paragraphs.  They are semantically inert and
+        # may spill onto a separate page during LibreOffice pagination.
+
+
+def add_subheading(doc: Document, block: dict, theme: dict) -> None:
+    p = doc.add_paragraph()
+    p.paragraph_format.first_line_indent = Pt(0)
+    p.paragraph_format.space_before = Pt(5)
+    p.paragraph_format.space_after = Pt(3)
+    keep_with_next(p)
+    run = p.add_run(str(block.get("text", "")))
+    set_east_asia(run, theme["fonts"]["heading_cn"])
+    run.font.size = Pt(theme["sizes"].get("body", 12))
+    run.font.bold = True
 
 
 def add_placeholder_image(doc: Document, block: dict, theme: dict) -> None:
@@ -395,12 +559,33 @@ def add_blocks(doc: Document, blocks: list[dict], theme: dict, base: Path) -> No
         elif kind == "lead":
             doc.add_paragraph(str(block.get("text", "")), style="Manual Lead")
         elif kind == "steps":
+            # Literal numbering is deliberate: Word's built-in List Number style
+            # continues across unrelated feature sections and produces misleading
+            # 5/9/13... starts.  A hanging-indent paragraph is deterministic in
+            # Word, WPS and LibreOffice and restarts every steps block at 1.
             for index, item in enumerate(block.get("items", []), 1):
-                p = doc.add_paragraph(style="List Number")
-                p.add_run(str(item))
+                p = doc.add_paragraph()
+                p.paragraph_format.left_indent = Mm(8)
+                p.paragraph_format.first_line_indent = Mm(-5.5)
+                p.paragraph_format.space_after = Pt(4)
+                p.paragraph_format.line_spacing = 1.35
+                number = p.add_run(f"{index}. ")
+                set_east_asia(number, theme["fonts"]["heading_cn"])
+                number.bold = True
+                body = p.add_run(str(item))
+                set_east_asia(body, theme["fonts"]["body_cn"])
         elif kind == "bullets":
             for item in block.get("items", []):
-                doc.add_paragraph(str(item), style="List Bullet")
+                p = doc.add_paragraph(style="List Bullet")
+                p.paragraph_format.left_indent = Mm(8)
+                p.paragraph_format.first_line_indent = Mm(-3.5)
+                p.paragraph_format.space_after = Pt(3)
+                run = p.add_run(str(item))
+                set_east_asia(run, theme["fonts"]["body_cn"])
+        elif kind == "subheading":
+            add_subheading(doc, block, theme)
+        elif kind == "facts":
+            add_facts(doc, block, theme)
         elif kind == "note":
             add_note(doc, block, theme)
         elif kind == "table":
@@ -423,11 +608,21 @@ def add_blocks(doc: Document, blocks: list[dict], theme: dict, base: Path) -> No
             raise ValueError(f"Unsupported block type: {kind}")
 
 
-def add_content_page(doc: Document, page: dict, theme: dict, base: Path) -> None:
+def add_content_page(doc: Document, page: dict, theme: dict, base: Path,
+                     bookmark: str | None = None, bookmark_id: int = 0,
+                     page_break_before: bool = False) -> None:
     if page.get("eyebrow") and theme.get("features", {}).get("show_eyebrow", False):
         doc.add_paragraph(str(page["eyebrow"]), style="Manual Eyebrow")
     level = int(page.get("level", 1 if page.get("kind") == "section" else 2))
     heading = doc.add_heading(str(page.get("title", "未命名页面")), level=level)
+    # Use a heading property instead of a standalone page-break paragraph.
+    # When a preceding table or image already fills the page, a standalone
+    # break can spill onto its own page and leave only the header/footer.
+    heading.paragraph_format.page_break_before = page_break_before
+    for run in heading.runs:
+        set_east_asia(run, theme["fonts"]["heading_cn"])
+    if bookmark:
+        add_bookmark(heading, bookmark, bookmark_id)
     keep_with_next(heading)
     if page.get("lead"):
         doc.add_paragraph(str(page["lead"]), style="Manual Lead")
@@ -453,16 +648,38 @@ def build(input_path: Path, theme_path: Path, output_path: Path) -> None:
     doc.core_properties.author = facts.get("rightsholder", "")
     doc.core_properties.comments = f"theme={theme.get('id', '')}; edition={document.get('edition', '')}"
 
+    toc_entries: list[dict[str, Any]] = []
+    bookmark_by_index: dict[int, tuple[str, int]] = {}
+    bookmark_id = 1
     for index, page in enumerate(pages):
-        if index:
-            doc.add_page_break()
+        if page.get("kind") in {"cover", "toc"}:
+            continue
+        bookmark = f"_SoftCertToc{bookmark_id:04d}"
+        level = int(page.get("level", 1 if page.get("kind") == "section" else 2))
+        toc_entries.append({"title": page.get("title", "未命名页面"), "level": level, "bookmark": bookmark})
+        bookmark_by_index[index] = (bookmark, bookmark_id)
+        bookmark_id += 1
+
+    for index, page in enumerate(pages):
         kind = page.get("kind")
         if kind == "cover":
+            if index:
+                doc.add_page_break()
             add_cover(doc, page, facts, document, theme)
         elif kind == "toc":
-            add_toc(doc, page, theme)
+            if index:
+                doc.add_page_break()
+            add_toc(doc, page, theme, toc_entries)
         else:
-            add_content_page(doc, page, theme, input_path.parent)
+            bookmark, bookmark_id = bookmark_by_index.get(index, (None, 0))
+            previous_kind = pages[index - 1].get("kind") if index else None
+            # A hard break is useful after the TOC and before an intentionally
+            # separated detail page.  Ordinary chapters flow naturally: this
+            # avoids LibreOffice producing a header/footer-only page when the
+            # preceding table or screenshot already ended at a page boundary.
+            force_break = previous_kind == "toc" or page.get("subpage_kind") == "detail"
+            add_content_page(doc, page, theme, input_path.parent, bookmark, bookmark_id,
+                             page_break_before=force_break)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     doc.save(output_path)
