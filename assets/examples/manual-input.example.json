@@ -1,0 +1,74 @@
+{
+  "facts": {
+    "software_full_name": "示例业务协同平台",
+    "software_short_name": "示例平台",
+    "version": "V1.0",
+    "rightsholder": "示例软件有限公司"
+  },
+  "document": {
+    "title": "操作手册",
+    "type": "软件著作权鉴别材料",
+    "edition": "完整成册版",
+    "status": "内部校验样例",
+    "date": "2026-08-11"
+  },
+  "pages": [
+    {
+      "kind": "cover",
+      "title": "示例业务协同平台",
+      "lead": "操作手册 · V1.0"
+    },
+    {
+      "kind": "toc",
+      "title": "目录",
+      "lead": "打开文档时更新目录域，可点击条目跳转到对应标题。"
+    },
+    {
+      "kind": "section",
+      "title": "1 软件概览",
+      "eyebrow": "PART 01 · PRODUCT OVERVIEW",
+      "lead": "本页演示章节标题、导语、信息卡和证据索引的组合。",
+      "evidence_ids": ["CAP-overview", "FILE-demo"],
+      "blocks": [
+        {"type": "paragraph", "text": "示例平台用于演示证据化操作手册的结构和视觉效果。正式使用时，本段内容应由真实项目证据支持。"},
+        {"type": "note", "title": "阅读提示", "text": "界面、路由、源文件和操作结果使用同一证据标识关联。"},
+        {"type": "table", "headers": ["项目", "内容"], "rows": [["软件版本", "V1.0"], ["适用角色", "经申请人确认的真实角色"], ["证据状态", "内部演示"]]}
+      ]
+    },
+    {
+      "kind": "content",
+      "title": "1.1 登录与工作台",
+      "level": 2,
+      "eyebrow": "TASK 01 · ACCESS",
+      "lead": "以任务目标、入口、操作、反馈和结果核验组织内容。",
+      "evidence_ids": ["UI-login", "STEP-login-submit"],
+      "blocks": [
+        {"type": "steps", "items": ["打开经确认的系统访问地址。", "输入测试账号并选择登录。", "核对工作台身份信息和可见功能。"]},
+        {"type": "placeholder_image", "caption": "图 1  登录成功后的工作台状态"},
+        {"type": "note", "title": "结果判据", "text": "页面显示当前角色和可操作模块，且无权限错误提示。"}
+      ]
+    },
+    {
+      "kind": "content",
+      "title": "1.2 任务结果核验",
+      "level": 2,
+      "eyebrow": "TASK 01 · VERIFY",
+      "lead": "成功结果、异常路径和证据来源在同一页闭环。",
+      "evidence_ids": ["CLAIM-login-success"],
+      "blocks": [
+        {"type": "table", "headers": ["检查项", "预期结果", "操作说明"], "rows": [["身份", "显示已登录角色", "核对当前用户信息"], ["权限", "功能范围与角色一致", "核对可见菜单"], ["反馈", "无错误提示", "检查页面提示"]]},
+        {"type": "paragraph", "text": "正式材料应替换本示例文字与占位图，并记录截图哈希和采集时间。"}
+      ]
+    },
+    {
+      "kind": "section",
+      "title": "附录 证据索引",
+      "eyebrow": "APPENDIX · EVIDENCE INDEX",
+      "lead": "列出手册声明与项目证据的映射，便于复核和版本更新。",
+      "evidence_ids": ["FACT-version"],
+      "blocks": [
+        {"type": "table", "headers": ["材料项目", "类型", "状态"], "rows": [["登录界面", "界面截图", "演示"], ["登录操作", "操作步骤", "演示"], ["软件版本", "申请事实", "已填写"]]}
+      ]
+    }
+  ]
+}

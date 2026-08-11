@@ -1,0 +1,40 @@
+{
+  "include": [
+    "src/**/*.py",
+    "src/**/*.cs",
+    "src/**/*.java",
+    "src/**/*.ts",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/vendor/**",
+    "**/dist/**",
+    "**/obj/**",
+    "**/bin/**",
+    "**/*.min.js",
+    "**/*.generated.*"
+  ],
+  "ordered_files": [],
+  "selection_policy": {
+    "scope": "仅纳入申请软件自身且与主要功能直接相关的完整源文件",
+    "unit": "whole_source_file",
+    "preferred_layers": ["entry", "controller", "service", "domain", "algorithm"],
+    "rationale": "【待申请人确认：代码语料库与申请软件边界】"
+  },
+  "file_decisions": [
+    {
+      "path": "【待填写：相对路径】",
+      "role": "controller|service|domain|algorithm|ui|support",
+      "evidence_ids": ["【待绑定：功能证据】"],
+      "reason": "【待填写：与申请软件主要功能的关系】"
+    }
+  ],
+  "review": {
+    "confirmed_by": "",
+    "confirmed_at": "",
+    "open_source_boundary_checked": false,
+    "generated_code_boundary_checked": false,
+    "secret_scan_checked": false
+  }
+}

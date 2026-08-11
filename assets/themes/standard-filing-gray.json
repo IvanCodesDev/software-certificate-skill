@@ -1,0 +1,52 @@
+{
+  "id": "standard-filing-gray",
+  "name": "软件著作权标准黑白灰版式",
+  "description": "面向软件著作权操作手册和设计说明书的正式、克制、打印友好版式",
+  "colors": {
+    "primary": "000000",
+    "secondary": "333333",
+    "accent": "666666",
+    "text": "000000",
+    "muted": "666666",
+    "paper": "FFFFFF",
+    "panel": "E7E6E6",
+    "soft": "F2F2F2",
+    "rule": "A6A6A6",
+    "warning": "333333"
+  },
+  "fonts": {
+    "title_cn": "SimHei",
+    "heading_cn": "SimHei",
+    "body_cn": "SimSun",
+    "latin": "Times New Roman",
+    "mono": "Courier New"
+  },
+  "sizes": {
+    "cover_title": 22,
+    "cover_document": 18,
+    "cover_subtitle": 14,
+    "h1": 16,
+    "h2": 15,
+    "h3": 14,
+    "body": 12,
+    "caption": 10.5,
+    "small": 9
+  },
+  "page": {
+    "top_mm": 20,
+    "bottom_mm": 20,
+    "inner_mm": 25,
+    "outer_mm": 20,
+    "gutter_mm": 0,
+    "header_mm": 10,
+    "footer_mm": 10
+  },
+  "features": {
+    "show_eyebrow": false,
+    "show_evidence_ids": false,
+    "cover_style": "plain_centered",
+    "table_header": "light_gray",
+    "note_style": "plain_gray",
+    "screenshot_border_pt": 0.5
+  }
+}

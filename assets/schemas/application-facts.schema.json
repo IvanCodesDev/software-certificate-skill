@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Software copyright application facts",
+  "type": "object",
+  "required": ["software_full_name", "version", "rightsholder", "publication_status"],
+  "properties": {
+    "software_full_name": {"type": "string", "minLength": 2},
+    "software_short_name": {"type": "string"},
+    "version": {"type": "string", "minLength": 1},
+    "rightsholder": {"type": "string", "minLength": 2},
+    "completion_date": {"type": "string"},
+    "publication_status": {"enum": ["published", "unpublished", "pending_confirmation"]},
+    "development_mode": {"type": "string"},
+    "rights_scope": {"type": "string"},
+    "project_root": {"type": "string"},
+    "confirmed_by": {"type": "string"},
+    "confirmed_at": {"type": "string"}
+  },
+  "additionalProperties": true
+}

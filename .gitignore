@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Build and packaging outputs
+build/
+dist/
+*.egg-info/
+
+# Generated cases and local outputs
+case/
+cases/
+output/
+outputs/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Office temporary files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak

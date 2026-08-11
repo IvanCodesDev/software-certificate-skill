@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Software evidence graph",
+  "type": "object",
+  "required": ["schema_version", "project", "nodes", "edges", "summary"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "project": {"type": "object"},
+    "nodes": {"type": "array"},
+    "edges": {"type": "array"},
+    "summary": {"type": "object"}
+  }
+}

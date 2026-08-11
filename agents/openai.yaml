@@ -1,0 +1,4 @@
+interface:
+  display_name: "软件著作权材料工作室"
+  short_description: "基于真实项目证据制作并校验标准黑白灰软件著作权申请材料"
+  default_prompt: "使用 $software-certificate-skill 基于当前项目证据制作标准黑白灰版式的软件著作权申请材料。"
