@@ -312,7 +312,7 @@ def run_capture(plan: dict[str, Any], plan_path: Path, output: Path,
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
         raise RuntimeError(
-            "Playwright is required. Run: python -m pip install -r requirements-browser.txt; "
+            "Playwright is required. Run: python -m pip install 'playwright>=1.49,<2'; "
             "python -m playwright install chromium"
         ) from exc
 

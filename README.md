@@ -7,7 +7,7 @@
 ![Output](https://img.shields.io/badge/Output-DOCX%20%7C%20PDF%20%7C%20TXT-2B579A?style=flat-square&logo=microsoftword&logoColor=white)
 ![Layout](https://img.shields.io/badge/Layout-Black%20%2F%20White%20%2F%20Gray-52525B?style=flat-square&logo=materialdesign&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F59E0B?style=flat-square&logo=opensourceinitiative&logoColor=white)](LICENSE)
-[![Open Source Rules](https://img.shields.io/badge/Open%20Source-Rules-0EA5E9?style=flat-square&logo=readthedocs&logoColor=white)](OPEN_SOURCE_RULES.md)
+[![Contributing](https://img.shields.io/badge/Open%20Source-Contributing-0EA5E9?style=flat-square&logo=github&logoColor=white)](.github/CONTRIBUTING.md)
 
 `software-certificate-skill` 把软著材料制作变成一条证据驱动的自动化流水线。用户只需打开真实项目，说“为当前项目生成软件著作权申请资料”，集中提供一次登记事实并选择截图方式，Agent 会继续完成项目分析、业务理解、源码选择、界面取证、申请表、操作手册、代码材料、DOCX/PDF、渲染检查、修复、打包和留档。
 
@@ -110,7 +110,7 @@ python -m pip install -r requirements.txt
 Web 自动截图：
 
 ```powershell
-python -m pip install -r requirements-browser.txt
+python -m pip install "playwright>=1.49,<2"
 python -m playwright install chromium
 ```
 
@@ -197,7 +197,7 @@ CI 覆盖 Windows、macOS、Linux 的结构、Schema 和单元测试；LibreOffi
 
 ## 贡献与开源规则
 
-本项目使用 [MIT License](LICENSE)。提交 Issue 或 PR 前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md) 与 [OPEN_SOURCE_RULES.md](OPEN_SOURCE_RULES.md)。核心要求：不得提交真实证件、账号、密钥、未授权源码或可识别申请材料；示例必须脱敏；新增规则必须标注来源等级和日期；新增模板不得牺牲真实证据、可追溯性和跨平台兼容。
+本项目使用 [MIT License](LICENSE)。提交 Issue 或 PR 前请阅读 [贡献指南](.github/CONTRIBUTING.md)。核心要求：不得提交真实证件、账号、密钥、未授权源码或可识别申请材料；测试夹具必须脱敏；新增规则必须标注来源等级和日期；新增模板不得牺牲真实证据、可追溯性和跨平台兼容。
 
 ## 免责声明
 

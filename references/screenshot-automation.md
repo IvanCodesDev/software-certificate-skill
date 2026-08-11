@@ -22,7 +22,7 @@
 安装可选浏览器依赖：
 
 ```powershell
-python -m pip install -r requirements-browser.txt
+python -m pip install "playwright>=1.49,<2"
 python -m playwright install chromium
 ```
 
