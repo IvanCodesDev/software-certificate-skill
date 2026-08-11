@@ -10,3 +10,4 @@
 *.jpeg binary
 *.docx binary
 *.pdf binary
+demos/** -text
