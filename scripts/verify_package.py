@@ -111,6 +111,59 @@ def source_metrics(path: Path | None) -> dict:
     }
 
 
+def screenshot_metrics(path: Path | None, required: bool = False) -> dict:
+    if path is None or not path.is_file():
+        return {
+            "present": False,
+            "required": required,
+            "issues": ["screenshot_index_missing"] if required else []
+        }
+    data = load_json(path)
+    captures = data.get("captures", [])
+    issues: list[str] = []
+    verified = 0
+    evidence_links = 0
+    for index, capture in enumerate(captures):
+        prefix = f"capture_{index + 1}:{capture.get('id', 'unknown')}"
+        if capture.get("status") != "pass":
+            issues.append(f"{prefix}:status_{capture.get('status', 'missing')}")
+        shot_value = capture.get("path")
+        shot = Path(shot_value) if shot_value else None
+        if shot and not shot.is_absolute():
+            shot = (path.parent / shot).resolve()
+        if not shot or not shot.is_file():
+            issues.append(f"{prefix}:file_missing")
+            continue
+        expected_hash = capture.get("sha256")
+        if not expected_hash or sha256_file(shot) != expected_hash:
+            issues.append(f"{prefix}:sha256_mismatch")
+        metrics = capture.get("metrics", {})
+        if int(metrics.get("width", 0)) <= 0 or int(metrics.get("height", 0)) <= 0:
+            issues.append(f"{prefix}:dimensions_missing")
+        if capture.get("quality_findings"):
+            issues.append(f"{prefix}:quality_findings_present")
+        if not capture.get("evidence_ids"):
+            issues.append(f"{prefix}:evidence_links_missing")
+        else:
+            evidence_links += len(capture["evidence_ids"])
+        if not capture.get("role") or not capture.get("url"):
+            issues.append(f"{prefix}:context_missing")
+        verified += 1
+    if required and not captures:
+        issues.append("screenshot_captures_empty")
+    summary = data.get("summary", {})
+    if summary.get("errors", 0):
+        issues.append("screenshot_summary_has_errors")
+    if summary.get("quality_warnings", 0):
+        issues.append("screenshot_summary_has_quality_warnings")
+    return {
+        "present": True, "required": required, "path": str(path.resolve()),
+        "sha256": sha256_file(path), "capture_count": len(captures),
+        "verified_files": verified, "evidence_links": evidence_links,
+        "issues": sorted(set(issues)),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", required=True, type=Path)
@@ -119,6 +172,8 @@ def main() -> int:
     parser.add_argument("--mode", choices=["draft", "release"], default="draft")
     parser.add_argument("--source-provenance", type=Path)
     parser.add_argument("--render-metrics", type=Path)
+    parser.add_argument("--screenshot-index", type=Path)
+    parser.add_argument("--require-screenshots", action="store_true")
     args = parser.parse_args()
     case = args.case.resolve()
     facts_path = case / "01-intake/application-facts.json"
@@ -136,6 +191,11 @@ def main() -> int:
     provenance_path = args.source_provenance or (case / "06-output/source/source-provenance.json")
     source = source_metrics(provenance_path)
     render = load_json(args.render_metrics) if args.render_metrics and args.render_metrics.exists() else None
+    screenshot_path = args.screenshot_index
+    if screenshot_path is None:
+        discovered = case / "02-evidence/screenshots/screenshot-index.json"
+        screenshot_path = discovered if discovered.exists() else None
+    screenshots = screenshot_metrics(screenshot_path, required=args.require_screenshots)
 
     gates = {
         "facts_confirmed": not facts_slots and bool(facts),
@@ -143,6 +203,7 @@ def main() -> int:
         "toc_jump_ready": manual.get("toc_field", False) and manual.get("toc_hyperlink_switch", False) and manual.get("toc_materialized_hyperlinks", 0) > 0,
         "storyboard_evidence": bool(plan) and not plan.get("evidence_debt_pages") and plan.get("release_ready", False),
         "evidence_graph_present": bool(graph.get("nodes")),
+        "screenshots_ready": not screenshots.get("issues"),
         "source_ready": source.get("present", False) and not source.get("issues"),
         "render_ready": render is not None and not render.get("blank_pages") and not render.get("possible_edge_overflow_pages"),
         "attestation_ready": bool(attestation.get("signature_ready"))
@@ -162,6 +223,7 @@ def main() -> int:
             "evidence_debt_count": len(plan.get("evidence_debt_pages", []))
         },
         "evidence": {"present": bool(graph), "summary": graph.get("summary", {})},
+        "screenshots": screenshots,
         "source": source,
         "render": render,
         "gates": gates,

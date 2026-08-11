@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "base_url": "http://127.0.0.1:4173",
+  "output_dir": "../../02-evidence/screenshots",
+  "default_timeout_ms": 15000,
+  "server": {
+    "command": "npm run dev -- --host 127.0.0.1 --port 4173",
+    "cwd": "../../../project",
+    "health_url": "http://127.0.0.1:4173/login",
+    "startup_timeout_seconds": 60
+  },
+  "browser": {
+    "engine": "chromium",
+    "headless": true,
+    "viewport": {"width": 1440, "height": 900},
+    "device_scale_factor": 1,
+    "locale": "zh-CN",
+    "timezone_id": "Asia/Shanghai",
+    "color_scheme": "light",
+    "save_storage_state": "../../02-evidence/browser-state.json"
+  },
+  "quality": {
+    "min_width": 1200,
+    "min_height": 700,
+    "min_entropy": 0.8,
+    "min_content_ratio": 0.002,
+    "max_near_white_ratio": 0.997,
+    "duplicate_dhash_distance": 1
+  },
+  "setup": [
+    {"type": "goto", "route": "/login"},
+    {"type": "fill", "selector": "[name='username']", "value": "${SCREENSHOT_USER}"},
+    {"type": "fill", "selector": "[name='password']", "value": "${SCREENSHOT_PASSWORD}"},
+    {"type": "click", "selector": "button[type='submit']"},
+    {"type": "wait_for", "selector": "[data-testid='app-shell']", "state": "visible"}
+  ],
+  "captures": [
+    {
+      "id": "dashboard-overview",
+      "title": "工作台概览",
+      "route": "/dashboard",
+      "role": "系统管理员",
+      "evidence_ids": ["CAP-dashboard"],
+      "ready_selector": "[data-testid='dashboard']",
+      "assertions": [
+        {"type": "assert_visible", "selector": "[data-testid='dashboard']"}
+      ],
+      "mask": ["[data-private]", ".user-phone"],
+      "hide": [".toast-container", "[data-dev-overlay]"],
+      "full_page": false
+    },
+    {
+      "id": "record-create-result",
+      "title": "新增记录并核验结果",
+      "route": "/records",
+      "role": "业务操作员",
+      "evidence_ids": ["CAP-record-create"],
+      "ready_selector": "[data-testid='record-list']",
+      "actions": [
+        {"type": "click", "selector": "[data-testid='create-record']"},
+        {"type": "fill", "selector": "[name='name']", "value": "截图测试记录"},
+        {"type": "click", "selector": "[data-testid='save-record']"},
+        {"type": "wait_for", "selector": "[data-testid='save-success']", "state": "visible"}
+      ],
+      "assertions": [
+        {"type": "assert_text", "selector": "[data-testid='save-success']", "contains": "成功"}
+      ],
+      "mask": ["[data-private]"],
+      "selector": "[data-testid='record-workspace']"
+    }
+  ]
+}

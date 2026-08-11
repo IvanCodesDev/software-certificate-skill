@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/IvanCodesDev/software-certificate-skill/assets/schemas/screenshot-plan.schema.json",
+  "title": "Web screenshot capture plan",
+  "type": "object",
+  "required": ["schema_version", "base_url", "captures"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "base_url": {"type": "string", "minLength": 1},
+    "output_dir": {"type": "string"},
+    "default_timeout_ms": {"type": "integer", "minimum": 1000},
+    "server": {
+      "type": "object",
+      "properties": {
+        "command": {"type": "string"},
+        "cwd": {"type": "string"},
+        "health_url": {"type": "string"},
+        "startup_timeout_seconds": {"type": "number", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "browser": {
+      "type": "object",
+      "properties": {
+        "engine": {"enum": ["chromium", "firefox", "webkit"]},
+        "headless": {"type": "boolean"},
+        "channel": {"type": "string"},
+        "executable_path": {"type": "string"},
+        "viewport": {
+          "type": "object",
+          "required": ["width", "height"],
+          "properties": {
+            "width": {"type": "integer", "minimum": 320},
+            "height": {"type": "integer", "minimum": 320}
+          },
+          "additionalProperties": false
+        },
+        "device_scale_factor": {"type": "number", "minimum": 0.5, "maximum": 4},
+        "locale": {"type": "string"},
+        "timezone_id": {"type": "string"},
+        "color_scheme": {"enum": ["light", "dark", "no-preference"]},
+        "storage_state": {"type": "string"},
+        "save_storage_state": {"type": "string"},
+        "user_data_dir": {"type": "string"},
+        "ignore_https_errors": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "min_width": {"type": "integer", "minimum": 1},
+        "min_height": {"type": "integer", "minimum": 1},
+        "min_entropy": {"type": "number", "minimum": 0},
+        "min_content_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "max_near_white_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "duplicate_dhash_distance": {"type": "integer", "minimum": 0, "maximum": 64}
+      },
+      "additionalProperties": false
+    },
+    "setup": {"$ref": "#/$defs/actions"},
+    "captures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "anyOf": [{"required": ["url"]}, {"required": ["route"]}],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]{1,79}$"},
+          "title": {"type": "string", "minLength": 1},
+          "url": {"type": "string"},
+          "route": {"type": "string"},
+          "role": {"type": "string"},
+          "evidence_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "ready_selector": {"type": "string"},
+          "wait_until": {"enum": ["commit", "domcontentloaded", "load", "networkidle"]},
+          "navigation_timeout_ms": {"type": "integer", "minimum": 1000},
+          "network_idle_timeout_ms": {"type": "integer", "minimum": 0},
+          "ready_timeout_ms": {"type": "integer", "minimum": 1000},
+          "settle_ms": {"type": "integer", "minimum": 0},
+          "actions": {"$ref": "#/$defs/actions"},
+          "assertions": {"$ref": "#/$defs/actions"},
+          "selector": {"type": "string"},
+          "full_page": {"type": "boolean"},
+          "hide": {"type": "array", "items": {"type": "string"}},
+          "mask": {"type": "array", "items": {"type": "string"}},
+          "mask_color": {"type": "string"},
+          "allow_duplicate": {"type": "boolean"},
+          "quality": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {"enum": ["goto", "click", "fill", "press", "select", "check", "uncheck", "hover", "wait_for", "wait_ms", "scroll_into_view", "assert_text", "assert_visible"]},
+          "selector": {"type": "string"},
+          "value": {},
+          "key": {"type": "string"},
+          "contains": {"type": "string"},
+          "url": {"type": "string"},
+          "route": {"type": "string"},
+          "state": {"enum": ["attached", "detached", "visible", "hidden"]},
+          "milliseconds": {"type": "integer", "minimum": 0},
+          "timeout_ms": {"type": "integer", "minimum": 1},
+          "wait_until": {"enum": ["commit", "domcontentloaded", "load", "networkidle"]}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -138,6 +138,46 @@ def main() -> int:
     if write_if_absent(path, manifest):
         created.append(str(path))
 
+    screenshot_plan = {
+        "schema_version": "1.0",
+        "base_url": "http://127.0.0.1:3000",
+        "output_dir": "screenshots",
+        "default_timeout_ms": 15000,
+        "browser": {
+            "engine": "chromium",
+            "headless": True,
+            "viewport": {"width": 1440, "height": 900},
+            "device_scale_factor": 1,
+            "locale": "zh-CN",
+            "timezone_id": "Asia/Shanghai",
+            "color_scheme": "light"
+        },
+        "quality": {
+            "min_width": 1200,
+            "min_height": 700,
+            "min_entropy": 0.8,
+            "min_content_ratio": 0.002,
+            "max_near_white_ratio": 0.997,
+            "duplicate_dhash_distance": 1
+        },
+        "setup": [],
+        "captures": [{
+            "id": "ui-home",
+            "title": "【待申请人确认：首个截图标题】",
+            "route": "/",
+            "role": "【待申请人确认：操作角色】",
+            "evidence_ids": [],
+            "ready_selector": "body",
+            "assertions": [{"type": "assert_visible", "selector": "body"}],
+            "mask": [],
+            "hide": [],
+            "full_page": False
+        }]
+    }
+    path = case / "02-evidence/screenshot-plan.json"
+    if write_if_absent(path, screenshot_plan):
+        created.append(str(path))
+
     preserved: list[dict] = []
     for original in args.preserve:
         source = original.resolve()

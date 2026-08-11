@@ -1,6 +1,6 @@
 ---
 name: software-certificate-skill
-description: 从真实软件项目建立可追溯证据图谱，策划约60页的中文操作手册，制作带真实Word目录和规范黑白灰申报版式的DOCX，编排源程序识别材料，并校验申请表、代码、截图、功能与版本的一致性。用户提到软件著作权、软著、源程序材料、操作手册、用户手册、设计说明书、申请材料排版、60页手册或软著材料审查时使用。
+description: 从真实软件项目建立可追溯证据图谱，自动运行网页并批量采集经过质量检查的界面截图，策划约60页的中文操作手册，制作带真实Word目录和规范黑白灰申报版式的DOCX，编排源程序识别材料，并校验申请表、代码、截图、功能与版本的一致性。适配 Codex、Claude Code、Cursor、OpenCode、WorkBuddy、QoderWork、TraeWork 及支持 Agent Skills 或 AGENTS.md 的平台。用户提到软件著作权、软著、自动截图、源程序材料、操作手册、用户手册、设计说明书、申请材料排版、60页手册或软著材料审查时使用。
 ---
 
 # 软件著作权材料工作室
@@ -11,6 +11,12 @@ description: 从真实软件项目建立可追溯证据图谱，策划约60页�
 
 默认产物语言为简体中文，纸张为 A4。信息缺失时使用显式槽位（如 `【待申请人确认：首次发表日期】`），并把槽位写入问题清单。
 
+## 平台与路径约定
+
+先把当前文件所在目录解析为 `SKILL_ROOT`，再从 `SKILL_ROOT` 调用 `scripts/`、`references/` 和 `assets/`。不要假设 Skill 安装在某个固定产品目录，也不要把案例输出写进 Skill 安装目录。
+
+Codex、Claude Code、Cursor、OpenCode 使用原生或通用 Skill 入口；WorkBuddy、QoderWork、TraeWork 使用通用 `.agents/skills`、`AGENTS.md` 和项目规则适配。安装或迁移时读取 [references/agent-platforms.md](references/agent-platforms.md)，运行 `scripts/install_agent_skill.py`，不要为每个平台复制一份不同的业务流程。
+
 ## 首次使用先读
 
 1. 读取 [references/rules-2026.md](references/rules-2026.md)，确认规则快照日期和证据等级。
@@ -20,6 +26,8 @@ description: 从真实软件项目建立可追溯证据图谱，策划约60页�
 5. 用户要求“参考过审材料”时同时读取 [references/research-evidence-2026.md](references/research-evidence-2026.md)，区分公开可核验样本与经验性信息。
 6. 创建操作手册或代码材料时读取 [references/layout-benchmarks.md](references/layout-benchmarks.md)，沿用已测量的黑白灰版式参数。
 7. 选择源程序材料时读取 [references/source-selection.md](references/source-selection.md)，按完整源文件和真实业务相关性建立有序代码语料库。
+8. 项目包含 Web 界面或需要批量截图时读取 [references/screenshot-automation.md](references/screenshot-automation.md)，先验证截图计划，再运行真实采集。
+9. 在不同 Agent 平台安装或分发时读取 [references/agent-platforms.md](references/agent-platforms.md)，使用安装器生成原生入口或通用规则。
 
 ## 工作室循环
 
@@ -39,6 +47,25 @@ python scripts/scan_project.py --project PROJECT_ROOT --output CASE_DIR/02-evide
 ```
 
 每个功能声明至少绑定一种真实证据：路由、控制器、页面、命令、数据实体、接口响应、配置、测试、日志或截图。功能名、入口、角色、前置条件、正常结果和异常结果分别记录，避免从目录名直接推断业务结论。
+
+### 2.5 自动采集界面证据
+
+从 `assets/examples/screenshot-plan.example.json` 建立案例截图计划，固定浏览器视口、语言、时区、颜色模式、角色、路由、页面就绪条件和隐私遮罩。账号与密码从环境变量或外部浏览器状态读取，不写入仓库。
+
+先验证，再采集并派生带截图节点的新证据图谱：
+
+```powershell
+python scripts/capture_web_screenshots.py `
+  --plan CASE_DIR/02-evidence/screenshot-plan.json --validate-only
+python scripts/capture_web_screenshots.py `
+  --plan CASE_DIR/02-evidence/screenshot-plan.json `
+  --output CASE_DIR/02-evidence/screenshots `
+  --evidence-source CASE_DIR/02-evidence/evidence-graph.json `
+  --evidence-output CASE_DIR/02-evidence/evidence-graph.with-screenshots.json `
+  --fail-fast
+```
+
+每张截图必须有稳定 ID、功能图题、角色、路由、动作、截图前断言和证据关联。脚本等待服务健康、DOM、字体、图片、页面就绪选择器和操作结果，关闭动画与光标闪烁，记录控制台错误、页面异常、失败请求、SHA-256、尺寸、熵、内容比例和 dHash。空白图、尺寸不足图和非预期近重复图不进入正式手册。
 
 ### 3. 锁定申请事实
 
@@ -100,10 +127,14 @@ python scripts/compose_code.py --project PROJECT_ROOT `
 ```powershell
 python scripts/verify_package.py --case CASE_DIR `
   --manual CASE_DIR/06-output/操作手册-完整成册版.docx `
+  --screenshot-index CASE_DIR/02-evidence/screenshots/screenshot-index.json `
+  --require-screenshots `
   --report CASE_DIR/07-qa/verification.json
 ```
 
-只有以下条件全部满足才形成发布包：真实 TOC 域存在、目录已刷新并可跳转、无断链标题、申请事实一致、所有关键功能有证据、截图比例正确、无裁切溢出、无意外空白页、文档行密度与源程序行密度合规、申报裁切连续、所有待确认槽位已清零或被明确签署。
+Web 项目使用截图硬门禁；桌面端、移动端或命令行项目省略 `--require-screenshots`，并提供相应平台的真实运行截图索引和人工验收记录。
+
+只有以下条件全部满足才形成发布包：真实 TOC 域存在、目录已刷新并可跳转、无断链标题、申请事实一致、所有关键功能有证据、自动截图索引完整、截图断言和质量检查通过、截图比例正确、无裁切溢出、无意外空白页、文档行密度与源程序行密度合规、申报裁切连续、所有待确认槽位已清零或被明确签署。
 
 ## 输出目录约定
 

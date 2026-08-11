@@ -63,7 +63,7 @@
 提交前至少运行：
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .
+python scripts/validate_skill.py .
 
 $WorkDir = Join-Path $env:TEMP "software-certificate-skill-self-test"
 python scripts/self_test.py --workdir $WorkDir
@@ -76,6 +76,13 @@ python scripts/self_test.py --workdir $WorkDir
 3. 渲染全部页面为 PDF 或 PNG；
 4. 检查目录跳转、分页、截图比例、表格断页、溢出和空白页；
 5. 在 Pull Request 中附去敏后的验证结果或局部截图。
+
+涉及自动截图时，还应验证截图计划、登录状态复用、页面就绪条件、隐私遮罩、失败快照、空白图检测和近重复检测。涉及平台适配时，至少执行一次全平台临时目录安装：
+
+```powershell
+python scripts/install_agent_skill.py --platform all --scope project `
+  --project "$env:TEMP\software-certificate-skill-adapters" --force
+```
 
 ## 6. Pull Request 要求
 

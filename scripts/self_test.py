@@ -10,7 +10,11 @@ import sys
 import zipfile
 from pathlib import Path
 
+from PIL import Image, ImageDraw
+
+from capture_web_screenshots import image_metrics, quality_findings
 from common import load_json, now_iso, save_json, sha256_file
+from verify_package import screenshot_metrics as verify_screenshot_metrics
 
 
 def run(command: list[str]) -> dict:
@@ -50,6 +54,74 @@ def main() -> int:
     work = args.workdir.resolve()
     work.mkdir(parents=True, exist_ok=True)
     commands: list[dict] = []
+
+    commands.append(run([
+        sys.executable, str(skill / "scripts/validate_skill.py"), str(skill)
+    ]))
+
+    screenshot_plan = work / "screenshot-plan.json"
+    save_json(screenshot_plan, {
+        "schema_version": "1.0",
+        "base_url": "http://127.0.0.1:4173",
+        "browser": {"viewport": {"width": 1440, "height": 900}},
+        "captures": [{
+            "id": "dashboard-overview", "title": "工作台概览", "route": "/dashboard",
+            "role": "管理员", "evidence_ids": ["CAP-dashboard"],
+            "ready_selector": "[data-testid='dashboard']", "full_page": False
+        }]
+    })
+    commands.append(run([
+        sys.executable, str(skill / "scripts/capture_web_screenshots.py"),
+        "--plan", str(screenshot_plan), "--validate-only"
+    ]))
+
+    screenshot_fixture = work / "screenshot-fixture.png"
+    image = Image.new("RGB", (1440, 900), "white")
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((0, 0, 1439, 72), fill="#303030")
+    draw.rectangle((48, 120, 1390, 840), fill="#eeeeee", outline="#555555", width=3)
+    draw.text((80, 160), "Software evidence dashboard", fill="black")
+    image.save(screenshot_fixture)
+    screenshot_metrics = image_metrics(screenshot_fixture)
+    assert not quality_findings(screenshot_metrics, {
+        "min_width": 1200, "min_height": 700, "min_entropy": 0.1,
+        "min_content_ratio": 0.001, "max_near_white_ratio": 0.99
+    })
+    screenshot_index = work / "screenshot-index.json"
+    save_json(screenshot_index, {
+        "schema_version": "1.0", "generated_at": now_iso(),
+        "summary": {"requested": 1, "completed": 1, "passed": 1,
+                    "quality_warnings": 0, "errors": 0},
+        "captures": [{
+            "id": "dashboard-overview", "title": "工作台概览", "status": "pass",
+            "path": str(screenshot_fixture), "sha256": sha256_file(screenshot_fixture),
+            "url": "http://127.0.0.1:4173/dashboard", "role": "管理员",
+            "evidence_ids": ["CAP-dashboard"], "metrics": screenshot_metrics,
+            "quality_findings": []
+        }]
+    })
+    assert not verify_screenshot_metrics(screenshot_index, required=True)["issues"]
+
+    adapters = work / "agent-adapters"
+    adapter_report = work / "agent-adapters.json"
+    commands.append(run([
+        sys.executable, str(skill / "scripts/install_agent_skill.py"),
+        "--source", str(skill), "--platform", "all", "--scope", "project",
+        "--project", str(adapters), "--force", "--report", str(adapter_report)
+    ]))
+    expected_adapters = [
+        adapters / ".claude/skills/software-certificate-skill/SKILL.md",
+        adapters / ".cursor/skills/software-certificate-skill/SKILL.md",
+        adapters / ".opencode/skills/software-certificate-skill/SKILL.md",
+        adapters / ".agents/skills/software-certificate-skill/SKILL.md",
+        adapters / "AGENTS.md",
+        adapters / ".qoder/rules/software-certificate-skill.md",
+        adapters / ".trae/rules/software-certificate-skill.md",
+    ]
+    assert all(path.is_file() for path in expected_adapters)
+    assert set(load_json(adapter_report)["platforms"]) == {
+        "codex", "claude-code", "cursor", "opencode", "workbuddy", "qoderwork", "traework"
+    }
 
     manual = work / "manual.docx"
     commands.append(run([
@@ -131,12 +203,20 @@ def main() -> int:
             "auto_page_plan_complex_66": True,
             "under_60_submits_all": True,
             "at_least_60_selects_front_back_30": True,
-            "source_provenance": True
+            "source_provenance": True,
+            "platform_independent_skill_validation": True,
+            "screenshot_plan_validation": True,
+            "screenshot_image_quality_metrics": True,
+            "screenshot_release_gate": True,
+            "multi_agent_adapter_install": True,
         },
         "artifacts": {
             "manual": {"path": str(manual), "sha256": sha256_file(manual)},
             "small_provenance": str(small_out / "source-provenance.json"),
-            "large_provenance": str(large_out / "source-provenance.json")
+            "large_provenance": str(large_out / "source-provenance.json"),
+            "screenshot_fixture": {"path": str(screenshot_fixture), "sha256": sha256_file(screenshot_fixture)},
+            "screenshot_index": str(screenshot_index),
+            "agent_adapter_report": str(adapter_report),
         },
         "commands": commands
     }

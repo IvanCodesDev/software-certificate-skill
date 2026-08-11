@@ -45,3 +45,6 @@ Desktop.ini
 *.log
 *.tmp
 *.bak
+
+# Local release verification and rollback artifacts
+.release-audit/

@@ -3,7 +3,7 @@
 > 从真实软件项目出发，生成可追溯、可审阅、可交付的中国软件著作权申请材料。
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=FFD43B)
-![Codex Skill](https://img.shields.io/badge/Codex-Skill-10A37F?style=flat-square&logo=openai&logoColor=white)
+![Multi-Agent Skill](https://img.shields.io/badge/Agent-Multi--Platform-10A37F?style=flat-square&logo=probot&logoColor=white)
 ![DOCX](https://img.shields.io/badge/Output-DOCX%20%7C%20TXT%20%7C%20JSON-2B579A?style=flat-square&logo=microsoftword&logoColor=white)
 ![Style](https://img.shields.io/badge/Layout-Black%20%2F%20White%20%2F%20Gray-7C3AED?style=flat-square&logo=materialdesign&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F59E0B?style=flat-square&logo=opensourceinitiative&logoColor=white)](LICENSE)
@@ -15,6 +15,7 @@
 ## 核心能力
 
 - **真实项目取证**：扫描路由、控制器、页面、服务、模型、配置、测试和截图等项目事实。
+- **自动化界面取证**：启动本地 Web 应用、自动登录、执行页面动作、批量截图，并检测空白图、重复图和尺寸异常。
 - **证据驱动写作**：每项功能声明绑定真实入口、操作路径、系统反馈或代码来源。
 - **约 60 页手册规划**：依据项目复杂度在 40–66 页间自动分配页面任务，内容充分时灵活扩展。
 - **标准申报排版**：A4、黑白灰、宋体正文、黑体标题、浅灰表头，适合打印和正式审阅。
@@ -22,6 +23,7 @@
 - **源程序连续编排**：按完整源文件组织代码，保留逐行来源映射，支持前后各连续 30 页的申报视图。
 - **一致性校验**：核对软件名称、简称、版本、权利人、日期、功能、截图、代码页眉和待确认项。
 - **可重复发布**：保留事实源、证据图谱、页级故事板、来源映射、校验报告与文件哈希。
+- **多 Agent 适配**：支持 Claude Code、Cursor、OpenCode、WorkBuddy、QoderWork、TraeWork 以及通用 Agent Skills / `AGENTS.md` 工作区。
 
 ## 设计原则
 
@@ -55,7 +57,8 @@
 flowchart LR
     A[冻结申请事实] --> B[扫描真实项目]
     B --> C[建立证据图谱]
-    C --> D[规划页级故事板]
+    C --> S[自动运行页面并采集截图]
+    S --> D[规划页级故事板]
     D --> E[完善手册内容]
     E --> F[生成 DOCX]
     C --> G[确认源文件清单]
@@ -72,23 +75,54 @@ flowchart LR
 
 ## 安装
 
-### 安装为个人 Codex Skill
+### 克隆仓库
 
 ```powershell
-git clone https://github.com/<owner>/software-certificate-skill.git `
-  "$env:USERPROFILE\.codex\skills\software-certificate-skill"
+git clone https://github.com/IvanCodesDev/software-certificate-skill.git
+cd software-certificate-skill
 ```
 
-重新打开 Codex 后即可使用：
+### 一次适配多个 Agent 平台
+
+安装到目标项目：
+
+```powershell
+python scripts/install_agent_skill.py `
+  --platform all `
+  --scope project `
+  --project E:\path\to\target-project `
+  --force
+```
+
+支持的平台入口：
+
+| 平台 | 适配入口 |
+|---|---|
+| Codex | `.agents/skills/` + `AGENTS.md`，或个人目录 `.codex/skills/` |
+| Claude Code | `.claude/skills/software-certificate-skill/` |
+| Cursor | `.cursor/skills/software-certificate-skill/` |
+| OpenCode | `.opencode/skills/software-certificate-skill/` |
+| WorkBuddy | `.agents/skills/` + `AGENTS.md` |
+| QoderWork | `.agents/skills/` + `.qoder/rules/` |
+| TraeWork | `.agents/skills/` + `.trae/rules/` |
+
+先预览安装行为：
+
+```powershell
+python scripts/install_agent_skill.py --platform all --scope project `
+  --project E:\path\to\target-project --dry-run
+```
+
+平台内可使用类似请求：
 
 ```text
-使用 $software-certificate-skill，基于当前项目生成软件著作权申请材料。
+使用 software-certificate-skill，基于当前项目生成软件著作权申请材料；先扫描真实项目并自动采集可复现的页面截图。
 ```
 
 ### 独立运行
 
 ```powershell
-git clone https://github.com/<owner>/software-certificate-skill.git
+git clone https://github.com/IvanCodesDev/software-certificate-skill.git
 cd software-certificate-skill
 python -m pip install python-docx Pillow
 ```
@@ -100,7 +134,14 @@ python -m pip install python-docx Pillow
 - Microsoft Word，用于刷新目录、页码和交叉引用域；
 - 可将 DOCX 渲染为 PDF/PNG 的工具，用于逐页视觉检查。
 
-> 发布仓库后，请把示例中的 `<owner>` 替换为实际 GitHub 用户名或组织名。
+需要自动化截图时安装可选依赖：
+
+```powershell
+python -m pip install -r requirements-browser.txt
+python -m playwright install chromium
+```
+
+详细适配规则见 [`references/agent-platforms.md`](references/agent-platforms.md)。
 
 ## 快速开始
 
@@ -126,7 +167,33 @@ python scripts/scan_project.py `
 
 扫描结果用于发现候选证据；业务含义需结合真实运行界面、测试结果和申请人确认完成复核。
 
-### 3. 自动规划操作手册
+### 3. 自动运行页面并采集截图
+
+从示例建立案例级截图计划：
+
+```powershell
+Copy-Item assets/examples/screenshot-plan.example.json `
+  "$CaseDir\02-evidence\screenshot-plan.json"
+
+python scripts/capture_web_screenshots.py `
+  --plan "$CaseDir\02-evidence\screenshot-plan.json" `
+  --validate-only
+```
+
+核对路由、角色、稳定选择器、登录方式、隐私遮罩和截图前断言后运行：
+
+```powershell
+python scripts/capture_web_screenshots.py `
+  --plan "$CaseDir\02-evidence\screenshot-plan.json" `
+  --output "$CaseDir\02-evidence\screenshots" `
+  --evidence-source "$CaseDir\02-evidence\evidence-graph.json" `
+  --evidence-output "$CaseDir\02-evidence\evidence-graph.with-screenshots.json" `
+  --fail-fast
+```
+
+每张图片会记录 SHA-256、尺寸、页面 URL、角色、功能证据、控制台异常、失败请求、视觉指标和近重复检测结果。失败动作自动保存诊断截图。详见 [`references/screenshot-automation.md`](references/screenshot-automation.md)。
+
+### 4. 自动规划操作手册
 
 ```powershell
 python scripts/plan_manual.py `
@@ -145,7 +212,7 @@ python scripts/seed_manual.py `
 
 结合项目实际运行结果、截图和操作步骤完善 `manual.json`，结构可参考 [`assets/examples/manual-input.example.json`](assets/examples/manual-input.example.json) 与 [`assets/schemas/manual.schema.json`](assets/schemas/manual.schema.json)。
 
-### 4. 生成操作手册 DOCX
+### 5. 生成操作手册 DOCX
 
 ```powershell
 python scripts/build_manual.py `
@@ -159,7 +226,7 @@ powershell -ExecutionPolicy Bypass -File scripts/refresh_word_fields.ps1 `
 
 第二条命令调用 Word 刷新目录域和页码。发布前打开文档，确认目录项可点击跳转、标题层级正确、页码已经物化。
 
-### 5. 编排源程序识别材料
+### 6. 编排源程序识别材料
 
 先参考 [`assets/examples/source-manifest.example.json`](assets/examples/source-manifest.example.json) 和 [`references/source-selection.md`](references/source-selection.md) 建立清单，人工确认文件顺序、第三方依赖边界、生成代码边界与敏感信息处理方式。
 
@@ -173,13 +240,15 @@ python scripts/compose_code.py `
 
 输出包括完整代码归档、申报 TXT、申报 DOCX、逐行 provenance JSON，以及完整版本与申报裁切之间的映射。
 
-### 6. 校验发布包
+### 7. 校验发布包
 
 ```powershell
 python scripts/verify_package.py `
   --case $CaseDir `
   --manual "$CaseDir\06-output\操作手册-完整成册版.docx" `
   --source-provenance "$CaseDir\06-output\source\source-provenance.json" `
+  --screenshot-index "$CaseDir\02-evidence\screenshots\screenshot-index.json" `
+  --require-screenshots `
   --report "$CaseDir\07-qa\verification.json" `
   --mode release
 ```
@@ -194,11 +263,13 @@ python scripts/render_metrics.py `
 
 机器校验通过后，继续逐页检查截图清晰度、表格断页、意外空白页、页面溢出和目录跳转。
 
+Web 项目使用 `--require-screenshots` 把自动截图纳入发布硬门禁；不包含 Web 界面的桌面端、移动端或命令行项目省略该开关，并通过对应平台的真实运行截图与人工复核记录完成证据验收。
+
 ## 项目结构
 
 ```text
 software-certificate-skill/
-├─ SKILL.md                         Codex 执行入口
+├─ SKILL.md                         跨平台 Agent Skill 执行入口
 ├─ agents/openai.yaml              Skill 展示信息
 ├─ assets/
 │  ├─ examples/                    输入示例
@@ -210,12 +281,17 @@ software-certificate-skill/
 │  ├─ research-evidence-2026.md    调研证据与使用边界
 │  ├─ evidence-model.md            证据模型
 │  ├─ manual-architecture.md       手册架构
+│  ├─ screenshot-automation.md     自动截图与证据采集
+│  ├─ agent-platforms.md           多 Agent 平台适配
 │  ├─ source-selection.md          源程序选择规范
 │  ├─ visual-system.md             视觉系统
 │  └─ quality-gates.md             交付门禁
 └─ scripts/
    ├─ init_case.py                 初始化申请工作区
    ├─ scan_project.py              扫描项目证据
+   ├─ capture_web_screenshots.py   自动运行页面并采集截图
+   ├─ install_agent_skill.py       生成多平台 Skill/Rules 入口
+   ├─ validate_skill.py            平台无关结构校验
    ├─ plan_manual.py               规划手册页数与章节
    ├─ seed_manual.py               生成结构化正文骨架
    ├─ build_manual.py              生成操作手册 DOCX
@@ -258,6 +334,7 @@ CASE_DIR/
 - [ ] 目录是 Word TOC 域，已刷新且可点击跳转；
 - [ ] 标题层级、目录项和正文一致；
 - [ ] 截图清晰、比例正确、关键控件完整；
+- [ ] 自动截图计划已通过，截图前断言成立，空白图和非预期重复图已经清零；
 - [ ] 代码来自申请软件自身，第三方库、生成代码、密钥和无关模块已排除；
 - [ ] 程序材料按完整源文件组织，逐行来源可追溯；
 - [ ] 申报视图前后页连续，裁切映射完整；
@@ -289,7 +366,7 @@ python scripts/self_test.py --workdir $WorkDir
 校验 Skill 元数据：
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_validate.py" .
+python scripts/validate_skill.py .
 ```
 
 ## 参与贡献
@@ -299,6 +376,8 @@ python "$env:USERPROFILE\.codex\skills\.system\skill-creator\scripts\quick_valid
 - 可公开核验的官方规则更新；
 - 不同技术栈的项目证据识别；
 - DOCX 目录、分页和跨平台渲染兼容性；
+- Playwright 登录、路由发现、页面状态等待和截图质量检测；
+- Claude Code、Cursor、OpenCode、WorkBuddy、QoderWork、TraeWork 的适配回归；
 - 源程序行密度与连续性校验；
 - 真实项目中的误报、漏报和排版回归样例。
 

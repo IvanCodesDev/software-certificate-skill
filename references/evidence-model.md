@@ -15,7 +15,7 @@
 | 接口 | `API-register-submit` | method, path, handler |
 | 数据对象 | `DATA-patient` | name, source_files, key_fields |
 | 操作步骤 | `STEP-register-save` | action, expected_feedback |
-| 截图 | `SHOT-register-result` | path, sha256, width, height, captured_at |
+| 截图 | `SHOT-register-result` | path, sha256, width, height, route, role, captured_at, metrics |
 | 声明 | `CLAIM-main-function-01` | text, evidence_ids, status |
 
 ## 边类型
@@ -25,6 +25,7 @@
 - `calls`：界面调用接口。
 - `reads` / `writes`：功能读写数据对象。
 - `proves`：截图或代码证明声明。
+- `supports`：自动采集截图支持功能、界面或步骤节点。
 - `precedes`：步骤顺序。
 - `derived_from`：文档内容从事实或证据派生。
 
