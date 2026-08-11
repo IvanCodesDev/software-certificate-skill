@@ -1,7 +1,0 @@
-{
-  "generated_at": "2026-08-11T12:14:33+08:00",
-  "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
-  "platform": "win32",
-  "rules_snapshot": "2026-08-11",
-  "skill_root": "${SKILL_ROOT}"
-}

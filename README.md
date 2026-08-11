@@ -183,21 +183,17 @@ Web 路线支持服务健康检查、登录、点击、输入、选择、滚动�
 
 每条记录保存来源、发布日期、抓取日期、适用范围和可信等级。经验建议不写成统一法定要求。详细快照见 [`references/rules-2026.md`](references/rules-2026.md) 与 [`assets/rules/rules-snapshot.json`](assets/rules/rules-snapshot.json)。
 
-## Demo 与测试
+## 测试
 
-- [`demos/web-project`](demos/web-project)：Web 项目；
-- [`demos/desktop-project`](demos/desktop-project)：桌面项目；
-- [`demos/cli-project`](demos/cli-project)：非前端/CLI 项目。
-
-每个 Demo 包含基础信息、分析结果、业务理解、截图、申请表、手册、代码材料、校验报告和正式资料。重新构建：
+仓库不提交大体积演示成品。端到端测试会在系统临时目录动态创建最小项目，生成申请表、操作手册、代码材料、校验报告和正式资料，测试结束后自动清理。
 
 ```powershell
-python scripts/build_demos.py
 python -m unittest discover -s tests -v
 python scripts/validate_skill.py
+python scripts/self_test.py --workdir "${TEMP}/software-certificate-self-test"
 ```
 
-CI 覆盖 Windows、macOS、Linux 的结构、Schema、单元和端到端测试；办公套件渲染回归在可用环境执行。
+CI 覆盖 Windows、macOS、Linux 的结构、Schema 和单元测试；LibreOffice 环境使用动态临时夹具执行 DOCX/PDF 端到端渲染，不依赖仓库内置 Demo。
 
 ## 贡献与开源规则
 
