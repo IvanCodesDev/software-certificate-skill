@@ -5,20 +5,52 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
-import math
-import textwrap
+import unicodedata
 from pathlib import Path
 
 from common import load_json, now_iso, relative_posix, safe_text, save_json, sha256_file
 
 try:
     from docx import Document
-    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_LINE_SPACING
+    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
     from docx.oxml import OxmlElement
     from docx.oxml.ns import qn
     from docx.shared import Mm, Pt
 except ImportError as exc:
     raise SystemExit("python-docx is required; use the bundled document runtime.") from exc
+
+
+# A4 filing geometry shared by line wrapping and DOCX writing.
+PAGE_WIDTH_MM = 210.0
+PAGE_HEIGHT_MM = 297.0
+MARGIN_TOP_MM = 22.0
+MARGIN_BOTTOM_MM = 25.4
+MARGIN_LEFT_MM = 20.0
+MARGIN_RIGHT_MM = 20.0
+MM_TO_PT = 72.0 / 25.4
+CONTENT_WIDTH_PT = (PAGE_WIDTH_MM - MARGIN_LEFT_MM - MARGIN_RIGHT_MM) * MM_TO_PT
+CONTENT_HEIGHT_PT = (PAGE_HEIGHT_MM - MARGIN_TOP_MM - MARGIN_BOTTOM_MM) * MM_TO_PT
+ASCII_FONT = "Consolas"
+EAST_ASIA_FONT = "SimSun"
+# Widest plausible monospace advance (em) across Consolas and its substitutes
+# (Liberation Mono / DejaVu Sans Mono / Courier family on LibreOffice), so a
+# pre-wrapped line never re-wraps in any rendering engine.
+ASCII_COLUMN_EM = 0.61
+
+
+def exact_line_spacing_pt(lines_per_page: int) -> float:
+    """Exact leading that lets lines_per_page lines fill the page body.
+
+    Computed in whole twips with ~2pt slack per page so Word and LibreOffice
+    rounding can never push the last line onto the next page.
+    """
+    content_twips = int(CONTENT_HEIGHT_PT * 20)
+    return ((content_twips - 40) // lines_per_page) / 20.0
+
+
+def max_columns_for(font_size: float, requested: int) -> int:
+    fit = int(CONTENT_WIDTH_PT / (ASCII_COLUMN_EM * font_size))
+    return max(20, min(requested, fit))
 
 
 DEFAULT_EXTENSIONS = {
@@ -60,13 +92,27 @@ def select_files(root: Path, manifest: dict) -> list[Path]:
     return result
 
 
-def wrap_source_line(line: str, max_chars: int) -> list[str]:
+def char_columns(character: str) -> int:
+    """Display columns of one character in a CJK-capable monospace grid."""
+    return 2 if unicodedata.east_asian_width(character) in ("W", "F", "A") else 1
+
+
+def wrap_source_line(line: str, max_columns: int) -> list[str]:
     expanded = line.expandtabs(4).rstrip()
     if not expanded:
         return [""]
-    return textwrap.wrap(expanded, width=max_chars, replace_whitespace=False,
-                         drop_whitespace=False, break_long_words=True,
-                         break_on_hyphens=False) or [""]
+    segments: list[str] = []
+    current: list[str] = []
+    width = 0
+    for character in expanded:
+        columns = char_columns(character)
+        if current and width + columns > max_columns:
+            segments.append("".join(current))
+            current, width = [], 0
+        current.append(character)
+        width += columns
+    segments.append("".join(current))
+    return segments
 
 
 def collect_lines(root: Path, files: list[Path], max_chars: int) -> tuple[list[str], list[dict], list[dict]]:
@@ -127,51 +173,65 @@ def add_page_field(paragraph) -> None:
         run._r.append(node)
 
 
-def write_docx(path: Path, pages: list[list[str]], source_page_numbers: list[int], facts: dict, label: str,
-               font_size: float = 9.0, line_spacing: float = 10.8) -> None:
+def set_page_number_start(section, start: int) -> None:
+    sect_pr = section._sectPr
+    pg_num_type = sect_pr.find(qn("w:pgNumType"))
+    if pg_num_type is None:
+        pg_num_type = OxmlElement("w:pgNumType")
+        cols = sect_pr.find(qn("w:cols"))
+        if cols is not None:
+            cols.addprevious(pg_num_type)
+        else:
+            sect_pr.append(pg_num_type)
+    pg_num_type.set(qn("w:start"), str(start))
+
+
+def write_docx(path: Path, pages: list[list[str]], facts: dict, lines_per_page: int,
+               font_size: float = 10.0, line_spacing: float | None = None,
+               page_number_start: int = 1, filing_total: int | None = None) -> None:
+    grid = exact_line_spacing_pt(lines_per_page)
+    spacing = min(line_spacing, grid) if line_spacing else grid
     doc = Document()
     section = doc.sections[0]
-    section.page_width = Mm(210)
-    section.page_height = Mm(297)
-    section.top_margin = Mm(22)
-    section.bottom_margin = Mm(25.4)
-    section.left_margin = Mm(20)
-    section.right_margin = Mm(20)
+    section.page_width = Mm(PAGE_WIDTH_MM)
+    section.page_height = Mm(PAGE_HEIGHT_MM)
+    section.top_margin = Mm(MARGIN_TOP_MM)
+    section.bottom_margin = Mm(MARGIN_BOTTOM_MM)
+    section.left_margin = Mm(MARGIN_LEFT_MM)
+    section.right_margin = Mm(MARGIN_RIGHT_MM)
     section.header_distance = Mm(15)
     section.footer_distance = Mm(17.5)
+    set_page_number_start(section, page_number_start)
     normal = doc.styles["Normal"]
-    normal.font.name = "Courier New"
-    normal._element.rPr.rFonts.set(qn("w:eastAsia"), "SimSun")
+    normal.font.name = ASCII_FONT
+    normal._element.rPr.rFonts.set(qn("w:eastAsia"), EAST_ASIA_FONT)
     normal.font.size = Pt(font_size)
     normal.paragraph_format.space_before = Pt(0)
     normal.paragraph_format.space_after = Pt(0)
     normal.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
-    normal.paragraph_format.line_spacing = Pt(line_spacing)
+    normal.paragraph_format.line_spacing = Pt(spacing)
     normal.paragraph_format.widow_control = False
 
     header = section.header.paragraphs[0]
     header.alignment = WD_ALIGN_PARAGRAPH.CENTER
     header.add_run(f"{facts.get('software_full_name', '软件源程序')}{facts.get('version', '')}")
-    for run in header.runs:
-        run.font.name = "Times New Roman"
-        run._element.rPr.rFonts.set(qn("w:eastAsia"), "SimSun")
-        run.font.size = Pt(9)
-
     footer = section.footer.paragraphs[0]
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
     footer.add_run("第 ")
     add_page_field(footer)
-    footer.add_run(" 页")
-    for run in footer.runs:
+    footer.add_run(f" 页  共 {filing_total or len(pages)} 页")
+    for run in header.runs + footer.runs:
         run.font.name = "Times New Roman"
-        run._element.rPr.rFonts.set(qn("w:eastAsia"), "SimSun")
+        run._element.rPr.rFonts.set(qn("w:eastAsia"), EAST_ASIA_FONT)
         run.font.size = Pt(9)
 
+    # pageBreakBefore keeps every physical page at exactly lines_per_page
+    # paragraphs; an explicit break paragraph would consume one line slot.
     for page_index, lines in enumerate(pages):
-        if page_index:
-            doc.add_page_break()
-        for line in lines:
+        for line_index, line in enumerate(lines):
             paragraph = doc.add_paragraph()
+            if page_index and not line_index:
+                paragraph.paragraph_format.page_break_before = True
             paragraph.add_run(line if line else " ")
     doc.save(path)
 
@@ -183,9 +243,10 @@ def main() -> int:
     parser.add_argument("--facts", type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--lines-per-page", type=int, default=50)
-    parser.add_argument("--max-chars", type=int, default=88)
-    parser.add_argument("--font-size", type=float, default=8.5)
-    parser.add_argument("--line-spacing", type=float, default=10.0)
+    parser.add_argument("--max-chars", type=int, default=76)
+    parser.add_argument("--font-size", type=float, default=10.0)
+    parser.add_argument("--line-spacing", type=float, default=None,
+                        help="Exact leading in pt; defaults to page body height / lines per page")
     args = parser.parse_args()
     if args.lines_per_page < 50:
         parser.error("--lines-per-page must be at least 50")
@@ -195,7 +256,10 @@ def main() -> int:
     files = select_files(root, manifest)
     if not files:
         parser.error("No eligible source files selected by the manifest")
-    lines, mapping, file_records = collect_lines(root, files, args.max_chars)
+    max_columns = max_columns_for(args.font_size, args.max_chars)
+    line_spacing = min(args.line_spacing or exact_line_spacing_pt(args.lines_per_page),
+                       exact_line_spacing_pt(args.lines_per_page))
+    lines, mapping, file_records = collect_lines(root, files, max_columns)
     if not lines:
         parser.error("Selected files contain no readable source lines")
     full_pages = chunked(lines, args.lines_per_page)
@@ -211,12 +275,12 @@ def main() -> int:
     full_txt = output / "source-full.txt"
     full_docx = output / "source-full.docx"
     write_txt(full_txt, full_pages)
-    write_docx(full_docx, full_pages, list(range(1, total_pages + 1)), facts, "完整归档版",
-               args.font_size, args.line_spacing)
+    write_docx(full_docx, full_pages, facts, args.lines_per_page, args.font_size, line_spacing)
     artifacts = {
         "full_txt": {"path": str(full_txt), "sha256": sha256_file(full_txt)},
         "full_docx": {"path": str(full_docx), "sha256": sha256_file(full_docx)},
     }
+    filing_total = sum(len(indices) for indices in groups.values())
     filing_groups = {}
     for key, indices in groups.items():
         pages = [full_pages[index] for index in indices]
@@ -224,9 +288,10 @@ def main() -> int:
         txt_path = output / f"source-{key.replace('_', '-')}.txt"
         docx_path = output / f"source-{key.replace('_', '-')}.docx"
         write_txt(txt_path, pages)
-        write_docx(docx_path, pages, source_numbers, facts,
-                   "全部源程序" if key == "all" else ("前30页" if key == "front_30" else "后30页"),
-                   args.font_size, args.line_spacing)
+        # Filing volumes carry one continuous page sequence: front 1-30 and
+        # back 31-60 when split, otherwise 1-N for the single volume.
+        write_docx(docx_path, pages, facts, args.lines_per_page, args.font_size, line_spacing,
+                   page_number_start=31 if key == "back_30" else 1, filing_total=filing_total)
         artifacts[f"{key}_txt"] = {"path": str(txt_path), "sha256": sha256_file(txt_path)}
         artifacts[f"{key}_docx"] = {"path": str(docx_path), "sha256": sha256_file(docx_path)}
         filing_groups[key] = {
@@ -255,7 +320,8 @@ def main() -> int:
         "selection_policy": manifest.get("selection_policy", {}),
         "file_decisions": manifest.get("file_decisions", []),
         "lines_per_page": args.lines_per_page,
-        "max_chars": args.max_chars,
+        "max_chars": max_columns,
+        "requested_max_chars": args.max_chars,
         "original_line_count": sum(item.get("original_lines", 0) for item in file_records),
         "full_line_count": len(lines),
         "full_page_count": total_pages,
@@ -265,7 +331,11 @@ def main() -> int:
         "files": file_records,
         "pages": line_pages,
         "line_mapping": mapping,
-        "layout": {"font_size_pt": args.font_size, "line_spacing_pt": args.line_spacing},
+        "layout": {"font_ascii": ASCII_FONT, "font_east_asia": EAST_ASIA_FONT,
+                   "font_size_pt": args.font_size, "line_spacing_pt": line_spacing,
+                   "max_display_columns": max_columns, "cjk_columns": 2,
+                   "pagination": "page_break_before",
+                   "page_numbering": "front 1-30 and back 31-60 when split, otherwise 1-N"},
         "artifacts": artifacts,
     }
     provenance_path = output / "source-provenance.json"

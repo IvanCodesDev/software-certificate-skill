@@ -17,9 +17,10 @@ SCRIPTS = ROOT / "scripts"
 
 
 def explicit_docx_pages(path: Path) -> int:
+    """Each page after the first starts with a w:pageBreakBefore paragraph."""
     with zipfile.ZipFile(path) as archive:
         xml = archive.read("word/document.xml").decode("utf-8", "replace")
-    return xml.count('w:type="page"') + 1
+    return xml.count("w:pageBreakBefore") + 1
 
 
 @unittest.skipUnless(os.environ.get("RUN_DOCUMENT_E2E") == "1", "set RUN_DOCUMENT_E2E=1 with LibreOffice available")

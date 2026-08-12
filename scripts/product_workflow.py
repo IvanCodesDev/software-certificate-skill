@@ -288,7 +288,10 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
     progress("正在生成代码材料")
     code_dir = paths.work / "code-material"
     code_dir.mkdir(parents=True, exist_ok=True)
-    configurations = [(88, 8.5, 10.0), (84, 8.0, 9.6), (80, 7.5, 9.2)]
+    # Width/font shrink per retry while the exact leading keeps 50 lines
+    # filling the A4 page body (~707.5pt), so no volume ships with a large
+    # blank band at the bottom of every page.
+    configurations = [(76, 10.0, 14.1), (74, 9.5, 14.05), (72, 9.0, 14.0)]
     provenance = code_dir / "source-provenance.json"
     render_dir = paths.work / "render-reports"
     render_dir.mkdir(parents=True, exist_ok=True)

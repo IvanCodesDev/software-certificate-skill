@@ -287,6 +287,33 @@ def image_blocks(capability: dict[str, Any], shots: dict[str, dict[str, Any]], f
     return blocks, missing, figure
 
 
+def procedure_lead_text(capability: dict[str, Any], variant: int,
+                        focus_items: list[str], result_fields: list[str]) -> str:
+    """Introduce the step list from this capability's own facts.
+
+    The lead must not restate the steps: they are rendered as a numbered block
+    right below it, and repeating them doubles every step sentence and trips
+    the repeated-sentence gate.
+    """
+    entry = capability["entry"]
+    count = len(text_list(capability.get("steps")))
+    focus = "、".join(focus_items[:2])
+    result_hint = "、".join(result_fields[:2]) or str(capability["success_feedback"])
+    scope = str(capability.get("data_scope") or "").rstrip("。")
+    leads = [
+        f"“{capability['name']}”的操作在“{entry}”页面内完成，共{count}步，"
+        + (f"重点填写或核对{focus}。" if focus else "每一步的界面反馈见下方图示。"),
+        f"下列{count}步在“{entry}”页面连续完成，完成后可在{result_hint}处核对本次结果。",
+        f"从“{entry}”进入后共需{count}步"
+        + (f"，其中{focus}决定本次处理的业务数据。" if focus else "，操作过程中不离开当前页面。"),
+        f"本节按{count}步说明“{capability['name']}”的完整操作过程，"
+        + (f"处理范围为{scope}。" if scope else f"完成后以{result_hint}为准。"),
+        f"在“{entry}”页面按下列{count}步操作"
+        + (f"，涉及{focus}等内容。" if focus else f"，完成标志为{capability['success_feedback']}"),
+    ]
+    return leads[variant % len(leads)]
+
+
 def capability_pages(capability: dict[str, Any], business: dict[str, Any], chapter: int,
                      shots: dict[str, dict[str, Any]], figure: int, allow_placeholders: bool
                      ) -> tuple[list[dict[str, Any]], list[dict[str, str]], int]:
@@ -384,8 +411,7 @@ def capability_pages(capability: dict[str, Any], business: dict[str, Any], chapt
 
     context_lead = (f"本章说明{capability['name']}的业务对象、页面入口和完成结果，"
                     f"适用角色为{role}。")
-    procedure_lead = (f"从“{capability['entry']}”开始，按页面顺序完成{joined(capability.get('steps'))}，"
-                      f"并以界面反馈确认处理结果。")
+    procedure_lead = procedure_lead_text(capability, variant, focus_items, result_fields)
     combined_blocks = overview_blocks + [
         {"type": "subheading", "text": procedure_title},
         {"type": "paragraph", "text": procedure_lead},
