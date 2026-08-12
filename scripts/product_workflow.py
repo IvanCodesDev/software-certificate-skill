@@ -296,7 +296,11 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
     render_dir = paths.work / "render-reports"
     render_dir.mkdir(parents=True, exist_ok=True)
     software = safe_filename(facts["software_full_name"])
-    formal_specs: list[tuple[Path, str, int]] = []
+    # Code volume PDFs are drawn directly on a fixed line grid (pagination is
+    # correct by construction and takes milliseconds). Office conversion stays
+    # as the fallback when reportlab or a TrueType CJK font is unavailable.
+    code_pdf_engine = os.environ.get("SOFTCERT_CODE_PDF_ENGINE", "direct")
+    formal_specs: list[tuple[Path, str, int, str]] = []
     converted: list[tuple[Path, Path, Path]] = []
     last_error = None
     for width, font, spacing in configurations:
@@ -306,17 +310,28 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
         prov = load_json(provenance)
         formal_specs = []
         if "all" in prov["filing_groups"]:
-            formal_specs.append((code_dir / "source-all.docx", f"{software}-代码(全部)", prov["filing_groups"]["all"]["page_count"]))
+            formal_specs.append((code_dir / "source-all.docx", f"{software}-代码(全部)",
+                                 prov["filing_groups"]["all"]["page_count"], "all"))
         else:
-            formal_specs += [(code_dir / "source-front-30.docx", f"{software}-代码(前30页)", 30),
-                             (code_dir / "source-back-30.docx", f"{software}-代码(后30页)", 30)]
+            formal_specs += [(code_dir / "source-front-30.docx", f"{software}-代码(前30页)", 30, "front_30"),
+                             (code_dir / "source-back-30.docx", f"{software}-代码(后30页)", 30, "back_30")]
         converted = []
         try:
-            for docx, name, expected_pages in formal_specs:
+            for docx, name, expected_pages, volume in formal_specs:
                 pdf, report = code_dir / f"{name}.pdf", render_dir / f"{name}.json"
-                run_script("convert_document.py", ["--input", str(docx), "--pdf", str(pdf), "--report", str(report),
-                           "--render-dir", str(paths.work / "rendered" / name), "--expected-pages", str(expected_pages)],
-                           timeout_seconds=420)
+                if code_pdf_engine == "direct":
+                    try:
+                        run_script("render_code_pdf.py", ["--provenance", str(provenance),
+                                   "--facts", str(paths.work / "application-facts.json"),
+                                   "--volume", volume, "--pdf", str(pdf), "--report", str(report),
+                                   "--render-dir", str(paths.work / "rendered" / name),
+                                   "--expected-pages", str(expected_pages)], timeout_seconds=120)
+                    except RuntimeError:
+                        code_pdf_engine = "legacy"
+                if code_pdf_engine == "legacy":
+                    run_script("convert_document.py", ["--input", str(docx), "--pdf", str(pdf), "--report", str(report),
+                               "--render-dir", str(paths.work / "rendered" / name), "--expected-pages", str(expected_pages)],
+                               timeout_seconds=420)
                 converted.append((docx, pdf, report))
             last_error = None
             break
@@ -352,7 +367,7 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
         (manual_docx, publication_root / f"{software}_操作手册.docx"),
         (manual_pdf, publication_root / f"{software}_操作手册.pdf"),
     ]
-    for (docx, pdf, _), (_, name, _) in zip(converted, formal_specs):
+    for (docx, pdf, _), (_, name, _, _) in zip(converted, formal_specs):
         publication += [(docx, publication_root / f"{name}.docx"), (pdf, publication_root / f"{name}.pdf")]
     for source, destination in publication:
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -408,16 +423,33 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
     existing_formal = [path for path in paths.formal.iterdir() if path.is_file()]
     if report_data.get("release_ready"):
         formal_snapshot = snapshot_files(paths, existing_formal, "正式资料被新版本替换")
-        for path in list(paths.formal.iterdir()):
-            if path.is_dir():
-                shutil.rmtree(path)
-            else:
-                path.unlink()
-        for _, draft_file in publication:
-            destination = paths.formal / draft_file.name
-            temporary = destination.with_suffix(destination.suffix + ".tmp")
-            shutil.copy2(draft_file, temporary)
-            os.replace(temporary, destination)
+        try:
+            for path in list(paths.formal.iterdir()):
+                if path.is_dir():
+                    shutil.rmtree(path)
+                else:
+                    path.unlink()
+            for _, draft_file in publication:
+                destination = paths.formal / draft_file.name
+                temporary = destination.with_suffix(destination.suffix + ".tmp")
+                shutil.copy2(draft_file, temporary)
+                os.replace(temporary, destination)
+        except PermissionError as exc:
+            # Reviewers usually keep the previous release open in Word/WPS
+            # while regenerating; a locked file must not crash the workflow.
+            locked = getattr(exc, "filename", None) or str(exc)
+            (paths.quality / "待确认事项清单.md").write_text(
+                "# 待确认事项清单\n\n"
+                f"- 正式资料被其他程序占用（通常是 Word/WPS 正在打开）：{locked}\n"
+                "- 请关闭该文件后重新运行，新版材料会自动完成替换；当前草稿与历史快照均已保留。\n",
+                encoding="utf-8")
+            record_stage(paths, state, "release", "blocked_by_locked_files",
+                         hash_inputs([publication_root, paths.quality]),
+                         [path for path in publication_root.iterdir() if path.is_file()],
+                         f"交付文件被占用：{locked}")
+            progress("正式资料正被其他程序打开，请关闭 Word/WPS 中的材料后重新运行")
+            print("DRAFT_STATUS=locked_delivery_files")
+            return 2
         record_stage(paths, state, "release", "complete", hash_inputs([paths.formal, paths.quality]),
                      [path for path in paths.formal.iterdir() if path.is_file()],
                      f"正式材料已通过阻塞项检查；上一版本：{formal_snapshot or '无'}")

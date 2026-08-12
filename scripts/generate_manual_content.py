@@ -177,15 +177,64 @@ def result_rows(capability: dict[str, Any], profile: str) -> list[list[str]]:
     return [["操作内容", inputs], ["业务限制", rules], ["可见结果", outputs], ["完成状态", states]]
 
 
+EXCEPTION_CASE_KEYS = ("condition", "case", "problem", "scenario", "situation",
+                       "现象", "问题", "情形", "场景", "错误")
+EXCEPTION_FIX_KEYS = ("resolution", "handling", "solution", "action", "advice",
+                      "fix", "feedback", "处理", "建议", "对策", "解决")
+FAQ_QUESTION_KEYS = ("question", "q", "title", "问题", "提问")
+FAQ_ANSWER_KEYS = ("answer", "a", "reply", "resolution", "回答", "解答", "处理")
+TERM_NAME_KEYS = ("term", "name", "word", "术语", "名称")
+TERM_MEANING_KEYS = ("description", "definition", "meaning", "explanation", "detail",
+                     "说明", "定义", "解释", "含义")
+
+
+def pick_pair(item: Any, first_keys: tuple[str, ...], second_keys: tuple[str, ...]) -> tuple[str, str]:
+    """Read a two-column row from a dict whose key names vary by author.
+
+    Business-understanding files are hand-written, so a rigid key lookup
+    silently drops real content and ships a blank table cell.
+    """
+    if not isinstance(item, dict):
+        return str(item).strip(), ""
+    first = next((str(item[key]).strip() for key in first_keys if str(item.get(key, "")).strip()), "")
+    second = next((str(item[key]).strip() for key in second_keys if str(item.get(key, "")).strip()), "")
+    leftovers = [str(value).strip() for value in item.values()
+                 if str(value).strip() and str(value).strip() not in (first, second)]
+    if not first and leftovers:
+        first = leftovers.pop(0)
+    if not second and leftovers:
+        second = leftovers.pop(0)
+    return first, second
+
+
 def exception_rows(capability: dict[str, Any]) -> list[list[str]]:
-    cases = capability.get("error_cases") or []
-    rows = []
-    for item in cases:
-        condition = str(item.get("condition", "")).strip()
-        resolution = str(item.get("resolution") or item.get("feedback") or "").strip()
-        if not resolution:
-            resolution = f"根据“{capability['name']}”页面提示修正输入或状态后重试。"
-        rows.append([condition, resolution])
+    generic_fix = f"根据“{capability['name']}”页面提示修正输入或状态后重试。"
+    rows: list[list[str]] = []
+    for item in capability.get("error_cases") or []:
+        condition, resolution = "", ""
+        if isinstance(item, dict):
+            condition = next((str(item[key]).strip() for key in EXCEPTION_CASE_KEYS
+                              if str(item.get(key, "")).strip()), "")
+            resolution = next((str(item[key]).strip() for key in EXCEPTION_FIX_KEYS
+                               if str(item.get(key, "")).strip()), "")
+            # Authors use varying key names; unmatched values still carry the
+            # real business content, so map them by position instead of
+            # silently emitting blank cells and boilerplate.
+            leftovers = [str(value).strip() for value in item.values()
+                         if str(value).strip() and str(value).strip() not in (condition, resolution)]
+            if not condition and leftovers:
+                condition = leftovers.pop(0)
+            if not resolution and leftovers:
+                resolution = leftovers.pop(0)
+        else:
+            condition = str(item).strip()
+        if not condition and not resolution:
+            continue
+        if not condition:
+            condition = str(capability.get("error_feedback", "")).strip() or "操作未达到预期结果"
+        row = [condition, resolution or generic_fix]
+        if row not in rows:
+            rows.append(row)
     if not rows:
         rows = [[str(capability.get("error_feedback", "页面提示操作未完成")),
                  f"返回“{capability['name']}”核对当前对象、输入和状态，修正后重新执行。"]]
@@ -229,7 +278,23 @@ def block_text(block: dict[str, Any]) -> str:
     return ""
 
 
-def content_quality(capability_pages: list[dict[str, Any]], rules: dict[str, Any]) -> dict[str, Any]:
+def blank_table_cells(pages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Blank cells mean a source field was dropped, never a real empty value."""
+    findings: list[dict[str, Any]] = []
+    for page in pages:
+        for block in page.get("blocks", []):
+            if block.get("type") != "table":
+                continue
+            for row in block.get("rows", []):
+                if any(not str(value).strip() for value in row):
+                    findings.append({"title": page.get("title", ""),
+                                     "headers": block.get("headers", []),
+                                     "row": [str(value) for value in row]})
+    return findings
+
+
+def content_quality(capability_pages: list[dict[str, Any]], rules: dict[str, Any],
+                    document_pages: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     sentences: list[str] = []
     signatures: list[str] = []
@@ -261,9 +326,13 @@ def content_quality(capability_pages: list[dict[str, Any]], rules: dict[str, Any
     signature_counts = Counter(signatures)
     if signature_counts and max(signature_counts.values()) > int(rules.get("maximum_identical_block_signature_count", 2)):
         issues.append({"code": "identical_section_structure_repeated", "actual": max(signature_counts.values()), "maximum": rules.get("maximum_identical_block_signature_count")})
+    blanks = blank_table_cells(document_pages if document_pages is not None else capability_pages)
+    if blanks:
+        issues.append({"code": "table_cell_blank", "actual": len(blanks), "samples": blanks[:5]})
     return {"status": "pass" if not issues else "fail", "issues": issues,
             "metrics": {"capabilities": len(grouped), "capability_sections": len(capability_pages),
                         "sentence_count": len(sentences), "repeated_sentence_ratio": round(ratio, 4),
+                        "blank_table_cells": len(blanks),
                         "block_signatures": dict(signature_counts)}}
 
 
@@ -499,21 +568,23 @@ def main() -> int:
         capability_page_list.extend(built)
         missing_shots.extend(missing)
         chapter += 1
-    if business.get("faq"):
+    faq_rows = [list(pick_pair(item, FAQ_QUESTION_KEYS, FAQ_ANSWER_KEYS)) for item in business.get("faq") or []]
+    faq_rows = [row for row in faq_rows if row[0] and row[1]]
+    if faq_rows:
         pages.append({"kind": "section", "title": f"{chapter} 常见问题", "level": 1,
                       "lead": "以下问题对应实际使用中的判断点和处理路径。", "blocks": [
                           {"type": "table", "headers": ["问题", "处理方法"],
-                           "rows": [[item.get("question", ""), item.get("answer", "")] for item in business["faq"]],
-                           "widths_mm": [55, 105]}]})
+                           "rows": faq_rows, "widths_mm": [55, 105]}]})
         chapter += 1
-    if business.get("terms"):
+    term_rows = [list(pick_pair(item, TERM_NAME_KEYS, TERM_MEANING_KEYS)) for item in business.get("terms") or []]
+    term_rows = [row for row in term_rows if row[0] and row[1]]
+    if term_rows:
         pages.append({"kind": "section", "title": f"{chapter} 术语说明", "level": 1,
                       "lead": "术语采用项目界面、业务状态和源码中能够核验的名称。", "blocks": [
                           {"type": "table", "headers": ["术语", "说明"],
-                           "rows": [[item.get("term", ""), item.get("description", "")] for item in business["terms"]],
-                           "widths_mm": [45, 115]}]})
+                           "rows": term_rows, "widths_mm": [45, 115]}]})
 
-    quality = content_quality(capability_page_list, load_json(args.quality_rules.resolve()))
+    quality = content_quality(capability_page_list, load_json(args.quality_rules.resolve()), pages)
     preferred_min, preferred_max = 40, 60
     logical_pages = len(pages)
     length_status = "within_preferred_range" if preferred_min <= logical_pages <= preferred_max else (

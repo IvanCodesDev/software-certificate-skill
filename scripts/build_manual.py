@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -421,6 +422,37 @@ def format_cell(cell, theme: dict, *, bold: bool = False,
             run.font.color.rgb = color(theme["colors"]["text"])
 
 
+DXA_PER_MM = 56.6929
+
+
+def set_table_grid(table, column_mm: list[float]) -> None:
+    """Write explicit tblW and tblGrid widths.
+
+    python-docx only writes per-cell tcW; with the table-level width left at
+    "auto", WPS stretches fixed-layout tables to the full text column while
+    Word/LibreOffice honour the 160mm grid, so every engine must be pinned to
+    the same explicit numbers.
+    """
+    tbl = table._tbl
+    tbl_pr = tbl.tblPr
+    tbl_w = tbl_pr.find(qn("w:tblW"))
+    if tbl_w is None:
+        tbl_w = OxmlElement("w:tblW")
+        anchor = tbl_pr.find(qn("w:jc"))
+        if anchor is None:
+            anchor = tbl_pr.find(qn("w:tblLayout"))
+        if anchor is not None:
+            anchor.addprevious(tbl_w)
+        else:
+            tbl_pr.append(tbl_w)
+    tbl_w.set(qn("w:type"), "dxa")
+    tbl_w.set(qn("w:w"), str(int(round(sum(column_mm) * DXA_PER_MM))))
+    grid = tbl.find(qn("w:tblGrid"))
+    if grid is not None:
+        for column, mm in zip(grid.findall(qn("w:gridCol")), column_mm):
+            column.set(qn("w:w"), str(int(round(mm * DXA_PER_MM))))
+
+
 def add_table(doc: Document, block: dict, theme: dict) -> None:
     colors, fonts = theme["colors"], theme["fonts"]
     headers = [str(v) for v in block.get("headers", [])]
@@ -433,6 +465,8 @@ def add_table(doc: Document, block: dict, theme: dict) -> None:
     widths = block.get("widths_mm")
     if not widths:
         widths = [38, 122] if len(headers) == 2 else [160 / len(headers)] * len(headers)
+    set_table_grid(table, [float(widths[idx] if idx < len(widths) else widths[-1])
+                           for idx in range(len(headers))])
     header_cells = table.rows[0].cells
     for idx, header in enumerate(headers):
         header_cells[idx].text = header
@@ -443,6 +477,13 @@ def add_table(doc: Document, block: dict, theme: dict) -> None:
         format_cell(header_cells[idx], theme, bold=True, alignment=WD_ALIGN_PARAGRAPH.CENTER)
     repeat_table_header(table.rows[0])
     keep_table_row(table.rows[0])
+    # Serial-number style columns read better centered than left-aligned.
+    centered_columns = {
+        idx for idx, header in enumerate(headers)
+        if str(header).strip() in {"序号", "编号", "页码", "图号"}
+        or (rows and all(re.fullmatch(r"\d{1,4}", str(row[idx]).strip())
+                         for row in rows if idx < len(row)))
+    }
     for row_index, values in enumerate(rows):
         cells = table.add_row().cells
         for idx, cell in enumerate(cells):
@@ -451,7 +492,8 @@ def add_table(doc: Document, block: dict, theme: dict) -> None:
             set_cell_margins(cell)
             cell.width = Mm(float(widths[idx] if idx < len(widths) else widths[-1]))
             cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
-            format_cell(cell, theme)
+            format_cell(cell, theme, alignment=WD_ALIGN_PARAGRAPH.CENTER if idx in centered_columns
+                        else WD_ALIGN_PARAGRAPH.LEFT)
         keep_table_row(table.rows[-1])
     # Do not append a spacer paragraph after a table.  When the table exactly
     # fills a page, Word/LibreOffice can push that otherwise-empty paragraph to
@@ -459,15 +501,40 @@ def add_table(doc: Document, block: dict, theme: dict) -> None:
 
 
 def add_note(doc: Document, block: dict, theme: dict) -> None:
+    """Render callouts as a self-contained shaded paragraph.
+
+    A single-cell table box fuses visually with an adjacent data table in
+    Word/WPS (two sibling tables render without a gap) and their widths are
+    resolved by different layout rules, which reads as a misaligned box. A
+    bordered paragraph always stands on its own line with its own spacing,
+    and its indents align it with the 160mm table grid.
+    """
     colors, fonts = theme["colors"], theme["fonts"]
-    table = doc.add_table(rows=1, cols=1)
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    cell = table.cell(0, 0)
-    set_cell_shading(cell, colors["soft"])
-    set_cell_border(cell, colors["rule"], 4)
-    set_cell_margins(cell, 160, 200, 160, 200)
-    p = cell.paragraphs[0]
-    format_cell(cell, theme)
+    p = doc.add_paragraph()
+    p_pr = p._p.get_or_add_pPr()
+    # Word/WPS draw the callout edge at (indent - border space), measured on
+    # real renders. indent 5.32mm - space 8pt(2.82mm) puts the box flush with
+    # the 160mm table grid while keeping a 2.8mm text inset on each side.
+    borders = OxmlElement("w:pBdr")
+    for side in ("top", "left", "bottom", "right"):
+        edge = OxmlElement(f"w:{side}")
+        edge.set(qn("w:val"), "single")
+        edge.set(qn("w:sz"), "4")
+        edge.set(qn("w:space"), "8")
+        edge.set(qn("w:color"), colors["rule"])
+        borders.append(edge)
+    p_pr.append(borders)
+    shading = OxmlElement("w:shd")
+    shading.set(qn("w:val"), "clear")
+    shading.set(qn("w:fill"), colors["soft"])
+    p_pr.append(shading)
+    fmt = p.paragraph_format
+    fmt.left_indent = Mm(5.32)
+    fmt.right_indent = Mm(5.32)
+    fmt.first_line_indent = Pt(0)
+    fmt.space_before = Pt(6)
+    fmt.space_after = Pt(6)
+    fmt.line_spacing = 1.3
     if block.get("title"):
         r = p.add_run(str(block["title"]) + "  ")
         set_east_asia(r, fonts["heading_cn"])
@@ -475,8 +542,6 @@ def add_note(doc: Document, block: dict, theme: dict) -> None:
         r.font.color.rgb = color(colors["secondary"])
     r = p.add_run(str(block.get("text", "")))
     set_east_asia(r, fonts["body_cn"])
-    # The following block already owns its top spacing; an empty paragraph here
-    # can become a nearly empty carry-over page after a tall callout.
 
 
 def add_facts(doc: Document, block: dict, theme: dict) -> None:
@@ -491,6 +556,7 @@ def add_facts(doc: Document, block: dict, theme: dict) -> None:
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         table.autofit = False
         width = 160 / len(group)
+        set_table_grid(table, [width] * len(group))
         for index, item in enumerate(group):
             label_cell, value_cell = table.cell(0, index), table.cell(1, index)
             label_cell.text = str(item.get("label", ""))
@@ -523,7 +589,10 @@ def add_placeholder_image(doc: Document, block: dict, theme: dict) -> None:
     colors, fonts = theme["colors"], theme["fonts"]
     table = doc.add_table(rows=1, cols=1)
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.autofit = False
+    set_table_grid(table, [160])
     cell = table.cell(0, 0)
+    cell.width = Mm(160)
     set_cell_shading(cell, colors["soft"])
     set_cell_border(cell, colors["rule"], 6)
     table.rows[0].height = Mm(72)
@@ -597,7 +666,11 @@ def add_blocks(doc: Document, blocks: list[dict], theme: dict, base: Path) -> No
         elif kind == "code":
             p = doc.add_paragraph()
             p.style = doc.styles["Normal"]
-            set_cell = doc.add_table(rows=1, cols=1).cell(0, 0)
+            code_table = doc.add_table(rows=1, cols=1)
+            code_table.autofit = False
+            set_table_grid(code_table, [160])
+            set_cell = code_table.cell(0, 0)
+            set_cell.width = Mm(160)
             set_cell_shading(set_cell, theme["colors"]["soft"])
             set_cell_border(set_cell, theme["colors"]["rule"], 4)
             set_cell.text = str(block.get("text", ""))
