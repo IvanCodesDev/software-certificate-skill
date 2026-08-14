@@ -241,37 +241,44 @@ def set_update_fields(doc: Document) -> None:
     node.set(qn("w:val"), "true")
 
 
+def clear_inherited_style_tabs(doc: Document, style_name: str) -> None:
+    """Remove tab stops baked into a built-in style.
+
+    OOXML merges style tabs with direct paragraph tabs instead of replacing
+    them, so the default template's Header style (centre stop at 4680 twips,
+    a US-Letter leftover) captures the first tab character and parks the page
+    number mid-page instead of at the right margin.
+    """
+    p_pr = doc.styles[style_name].element.pPr
+    if p_pr is not None:
+        tabs = p_pr.find(qn("w:tabs"))
+        if tabs is not None:
+            p_pr.remove(tabs)
+
+
 def configure_header_footer(doc: Document, facts: dict, theme: dict) -> None:
+    """Unified filing header: 软件全称+版本号 left, 页码 right, empty footer."""
     colors, fonts, sizes = theme["colors"], theme["fonts"], theme["sizes"]
-    label = facts.get("software_short_name") or facts.get("software_full_name", "软件操作手册")
+    label = facts.get("software_full_name", "软件操作手册")
     version = facts.get("version", "")
+    clear_inherited_style_tabs(doc, "Header")
     for section in doc.sections:
         header = section.header
         p = header.paragraphs[0]
         p.paragraph_format.space_after = Pt(2)
-        p.paragraph_format.tab_stops.add_tab_stop(Mm(160), WD_TAB_ALIGNMENT.RIGHT)
-        r = p.add_run(label)
-        set_east_asia(r, fonts["body_cn"])
-        r.font.size = Pt(sizes["small"])
-        r.font.color.rgb = color(colors["muted"])
-        r = p.add_run("\t" + version)
-        set_east_asia(r, fonts["latin"])
-        r.font.size = Pt(sizes["small"])
-        r.font.color.rgb = color(colors["muted"])
-        set_paragraph_bottom_border(p, colors["rule"], 4)
+        p.paragraph_format.tab_stops.add_tab_stop(Mm(165), WD_TAB_ALIGNMENT.RIGHT)
 
-        footer = section.footer
-        p = footer.paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r = p.add_run("第 ")
-        set_east_asia(r, fonts["body_cn"])
-        r.font.size = Pt(sizes["small"])
-        r.font.color.rgb = color(colors["muted"])
+        def muted(run, font_name):
+            set_east_asia(run, font_name)
+            run.font.size = Pt(sizes["small"])
+            run.font.color.rgb = color(colors["muted"])
+
+        muted(p.add_run(f"{label}{version}".strip()), fonts["body_cn"])
+        muted(p.add_run("\t第 "), fonts["body_cn"])
         add_field(p, " PAGE ", "1")
-        r = p.add_run(" 页")
-        set_east_asia(r, fonts["body_cn"])
-        r.font.size = Pt(sizes["small"])
-        r.font.color.rgb = color(colors["muted"])
+        muted(p.runs[-1], fonts["latin"])
+        muted(p.add_run(" 页"), fonts["body_cn"])
+        set_paragraph_bottom_border(p, colors["rule"], 4)
 
 
 def add_cover(doc: Document, page: dict, facts: dict, document: dict, theme: dict) -> None:

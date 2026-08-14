@@ -10,7 +10,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from common import load_json, now_iso, relative_posix, safe_text, save_json, sha256_file
+from common import (load_json, looks_like_backend, now_iso, relative_posix, safe_text,
+                    save_json, sha256_file, strongly_backend)
 
 SOURCE_LANGUAGES = {
     ".py": "Python", ".java": "Java", ".kt": "Kotlin", ".go": "Go",
@@ -108,7 +109,114 @@ def package_metadata(root: Path) -> tuple[list[dict[str, Any]], set[str], list[d
         elif name in {"go.mod", "composer.json", "cargo.toml"}:
             text = safe_text(path) or ""
             dependencies.update(re.findall(r"(?i)\b(gin|fiber|echo|laravel|symfony|actix|rocket|tauri)\b", text))
+        elif (name.startswith("requirements") and name.endswith(".txt")) or name == "pipfile":
+            # Python backends commonly declare frameworks only here; missing
+            # this file used to misread fullstack repositories as pure frontend.
+            text = safe_text(path) or ""
+            for line in text.splitlines():
+                match = re.match(r"\s*([A-Za-z0-9][A-Za-z0-9_.\-]*)", line)
+                if match:
+                    dependencies.add(match.group(1).lower())
     return candidates, dependencies, commands
+
+
+FRONTEND_DEPENDENCIES = re.compile(
+    r"\b(vue|react|angular|svelte|vite|webpack|rollup|element-plus|ant-design|antd|"
+    r"pinia|vuex|redux|next|nuxt|tailwind)\b", re.I)
+BACKEND_DEPENDENCIES = re.compile(
+    r"\b(express|koa|fastify|nestjs|eggjs|django|flask|fastapi|sanic|tornado|"
+    r"spring-boot|spring-web|mybatis|gin|fiber|echo|laravel|symfony|actix|rocket|"
+    r"uvicorn|gunicorn|"
+    r"microsoft\.aspnetcore|sequelize|typeorm|prisma|mongoose|sqlalchemy)\b", re.I)
+
+
+def find_marker(root: Path, name: str) -> str | None:
+    for path in root.rglob(name):
+        if path.is_file() and not skipped(path, root):
+            return relative_posix(path, root)
+    return None
+
+
+def architecture_scope(root: Path, dependencies: set[str],
+                       languages: Counter[str] | None = None,
+                       backend_impl: dict[str, int] | None = None) -> dict[str, Any]:
+    """Classify whether the repository holds frontend, backend, or both.
+
+    The scope decides what the filing must contain: a fullstack repository
+    files frontend AND backend source together, while a frontend-only
+    repository must not silently ship vendored backend code someone else
+    owns. Declared server frameworks, server markers and code volume decide
+    the call; a stray `server/` folder or a few small foreign-language files
+    stay weak evidence so vendored snippets are routed to ownership review
+    instead of silently upgrading the project to "fullstack".
+
+    Frontend code (components, pages, styles) routinely dwarfs the backend
+    in line count, so the backend/total ratio alone would misread most real
+    fullstack repositories as frontend-only and silently drop the backend
+    from the filing. Strongly attributed implementation (framework imports
+    or server-side directories) therefore counts by absolute volume and is
+    never diluted by a large frontend.
+    """
+    languages = languages or Counter()
+    impl = backend_impl or {"files": 0, "lines": 0, "attributed_lines": 0}
+    frontend: list[str] = []
+    backend: list[str] = []
+    joined = " ".join(sorted(dependencies))
+    if FRONTEND_DEPENDENCIES.search(joined):
+        frontend.append("依赖含前端框架或构建工具")
+    if (root / "index.html").is_file() or any(root.glob("vite.config.*")) or (root / "src" / "App.vue").is_file():
+        frontend.append("存在前端入口与构建配置")
+    env_text = " ".join(safe_text(path, 100_000) or "" for path in root.glob(".env*") if path.is_file())
+    if re.search(r"(?i)(api[_-]?(url|base)|baseurl)\s*=", env_text):
+        frontend.append("环境变量指向外部 API 地址")
+    readme_path = root / "README.md"
+    readme = (safe_text(readme_path, 500_000) or "") if readme_path.is_file() else ""
+    if re.search(r"前端项目|前端仓库|\bfrontend\b", readme, re.I):
+        frontend.append("README 声明为前端项目")
+
+    strong_backend = False
+    if BACKEND_DEPENDENCIES.search(joined):
+        backend.append("依赖清单声明了服务端框架或数据访问层")
+        strong_backend = True
+    for marker in ("manage.py", "application.yml", "application.properties", "wsgi.py", "asgi.py"):
+        found = find_marker(root, marker)
+        if found:
+            backend.append(f"存在服务端配置 {found}")
+            strong_backend = True
+            break
+    for name in ("server", "backend", "api-server"):
+        if (root / name).is_dir():
+            backend.append(f"存在目录 {name}/（弱信号）")
+    total_lines = sum(languages.values())
+    backend_lines = impl["lines"]
+    backend_ratio = backend_lines / total_lines if total_lines else 0.0
+    attributed_lines = int(impl.get("attributed_lines", 0))
+    if impl["lines"]:
+        backend.append(f"源码级识别到服务端实现：{impl['files']}个文件/{impl['lines']}行"
+                       f"（框架导入或服务端目录强归因 {attributed_lines} 行）")
+    if backend_ratio >= 0.15:
+        backend.append(f"服务端代码占比 {backend_ratio:.0%}")
+    # A real backend is practically never under ~300 lines, so smaller
+    # volumes without declared frameworks stay weak evidence (vendored
+    # demos, stray legacy files) and go to ownership review instead.
+    substantial_backend = backend_lines >= 300 and backend_ratio >= 0.15
+    # Strong attribution reaching real-backend volume upgrades the scope on
+    # its own: a big frontend must not dilute an actual in-repo backend.
+    implemented_backend = attributed_lines >= 300
+    if implemented_backend:
+        backend.append(f"服务端强归因实现 {attributed_lines} 行，达到独立后端规模")
+
+    if frontend and (strong_backend or substantial_backend or implemented_backend):
+        scope = "fullstack"
+    elif frontend:
+        scope = "frontend_only"
+    elif strong_backend or implemented_backend or backend_ratio >= 0.5:
+        scope = "backend_only"
+    else:
+        scope = "unclassified"
+    return {"scope": scope, "frontend_signals": frontend, "backend_signals": backend,
+            "backend_language_ratio": round(backend_ratio, 4),
+            "backend_implementation": impl}
 
 
 def technology_profile(root: Path, dependencies: set[str]) -> dict[str, Any]:
@@ -152,6 +260,7 @@ def main() -> int:
     languages: Counter[str] = Counter()
     source_lines = 0
     source_files = 0
+    backend_impl = {"files": 0, "lines": 0, "attributed_lines": 0}
     for path in root.rglob("*"):
         if not path.is_file() or skipped(path, root) or path.suffix.lower() not in SOURCE_LANGUAGES:
             continue
@@ -160,7 +269,19 @@ def main() -> int:
         languages[SOURCE_LANGUAGES[path.suffix.lower()]] += count
         source_lines += count
         source_files += 1
+        # Per-file backend attribution shared with the source selector, so
+        # the analysis scope and the selection sides always agree. Framework
+        # imports or a server-side directory count as strong attribution;
+        # backend-only languages found elsewhere stay weak evidence.
+        rel = relative_posix(path, root)
+        strong = strongly_backend(rel, text or "")
+        if strong or looks_like_backend(rel, text or ""):
+            backend_impl["files"] += 1
+            backend_impl["lines"] += count
+            if strong:
+                backend_impl["attributed_lines"] += count
     tech = technology_profile(root, dependencies)
+    tech["architecture_scope"] = architecture_scope(root, dependencies, languages, backend_impl)
     names = [item for item in metadata if item["field"] == "name"]
     versions = [item for item in metadata if item["field"] == "version"]
     name_value = names[0]["value"] if names else root.name
@@ -219,7 +340,8 @@ def main() -> int:
     }
     save_json(args.output.resolve(), result)
     print(f"PROJECT_ANALYSIS={args.output.resolve()}")
-    print(f"LANGUAGES={','.join(primary_languages)} SOURCE_LINES={source_lines} CAPABILITIES={len(capabilities)} CONFLICTS={len(conflicts)}")
+    print(f"LANGUAGES={','.join(primary_languages)} SOURCE_LINES={source_lines} CAPABILITIES={len(capabilities)} "
+          f"CONFLICTS={len(conflicts)} SCOPE={tech['architecture_scope']['scope']}")
     return 0
 
 

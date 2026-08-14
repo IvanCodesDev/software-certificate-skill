@@ -18,8 +18,8 @@ import time
 from pathlib import Path
 
 from common import load_json, now_iso, save_json, sha256_file
-from compose_code import (MARGIN_LEFT_MM, MARGIN_TOP_MM, MM_TO_PT, PAGE_HEIGHT_MM,
-                          PAGE_WIDTH_MM, char_columns)
+from compose_code import (MARGIN_LEFT_MM, MARGIN_RIGHT_MM, MARGIN_TOP_MM, MM_TO_PT,
+                          PAGE_HEIGHT_MM, PAGE_WIDTH_MM, char_columns)
 
 try:
     from reportlab.lib.colors import black
@@ -35,9 +35,9 @@ PAGE_WIDTH_PT = PAGE_WIDTH_MM * MM_TO_PT
 PAGE_HEIGHT_PT = PAGE_HEIGHT_MM * MM_TO_PT
 MARGIN_TOP_PT = MARGIN_TOP_MM * MM_TO_PT
 MARGIN_LEFT_PT = MARGIN_LEFT_MM * MM_TO_PT
+MARGIN_RIGHT_PT = MARGIN_RIGHT_MM * MM_TO_PT
 HEADER_BASELINE_FROM_TOP_PT = 15 * MM_TO_PT + 7.2
-FOOTER_BASELINE_FROM_BOTTOM_PT = 17.5 * MM_TO_PT - 2.0
-HEADER_FOOTER_SIZE = 9.0
+HEADER_SIZE = 9.0
 
 WINDOWS_FONTS = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts"
 # (font path, TTC subfont index). CFF-flavoured collections such as Ubuntu's
@@ -104,9 +104,10 @@ def draw_runs(page, runs: list[tuple[str, str]], x: float, baseline: float, size
         x += pdfmetrics.stringWidth(text, font, size)
 
 
-def draw_centered(page, runs: list[tuple[str, str]], baseline: float, size: float) -> None:
+def draw_right_aligned(page, runs: list[tuple[str, str]], right_edge: float,
+                       baseline: float, size: float) -> None:
     total = sum(pdfmetrics.stringWidth(text, font, size) for font, text in runs)
-    draw_runs(page, runs, (PAGE_WIDTH_PT - total) / 2, baseline, size)
+    draw_runs(page, runs, right_edge - total, baseline, size)
 
 
 def parse_pages(txt_path: Path) -> list[list[str]]:
@@ -178,6 +179,20 @@ def main() -> int:
         print(f"RENDER_ERROR=expected {expected} pages, composed {len(pages)}", file=sys.stderr)
         return 2
 
+    # Carry the source-effective density into the render receipt.  The front
+    # volume's page 30 is not the filing's final page, so only the global last
+    # logical page receives the short-page exception.
+    logical_pages = list(groups[args.volume].get("logical_source_pages", []))
+    page_meta = provenance.get("pages", [])
+    quota = int(provenance.get("lines_per_page", 50))
+    effective_lines = [int(page_meta[number - 1].get("effective_lines", page_meta[number - 1].get("line_count", 0)))
+                       for number in logical_pages if 0 < number <= len(page_meta)]
+    short_pages = [index + 1 for index, (number, value) in enumerate(zip(logical_pages, effective_lines))
+                   if number != int(provenance.get("full_page_count", 0)) and value < quota]
+    if short_pages:
+        print(f"RENDER_ERROR=non-final pages under {quota} effective lines: {short_pages}", file=sys.stderr)
+        return 2
+
     layout = provenance.get("layout", {})
     font_size = float(layout.get("font_size_pt", 10.0))
     line_height = float(layout.get("line_spacing_pt", 14.1))
@@ -195,9 +210,13 @@ def main() -> int:
     page.setCreator("software-certificate-skill direct renderer")
     page.setFillColor(black)
     for index, lines in enumerate(pages):
-        draw_centered(page, header_runs, PAGE_HEIGHT_PT - HEADER_BASELINE_FROM_TOP_PT, HEADER_FOOTER_SIZE)
-        footer_runs = line_runs(f"第 {page_start + index} 页  共 {filing_total} 页", latin_text, cjk)
-        draw_centered(page, footer_runs, FOOTER_BASELINE_FROM_BOTTOM_PT, HEADER_FOOTER_SIZE)
+        # Unified filing header: name + version on the left, page number on
+        # the right, empty footer — matching the DOCX siblings.
+        header_baseline = PAGE_HEIGHT_PT - HEADER_BASELINE_FROM_TOP_PT
+        draw_runs(page, header_runs, MARGIN_LEFT_PT, header_baseline, HEADER_SIZE)
+        page_runs = line_runs(f"第 {page_start + index} 页", latin_text, cjk)
+        draw_right_aligned(page, page_runs, PAGE_WIDTH_PT - MARGIN_RIGHT_PT,
+                           header_baseline, HEADER_SIZE)
         for line_no, line in enumerate(lines):
             if not line:
                 continue
@@ -227,6 +246,10 @@ def main() -> int:
         "pdf_sha256": sha256_file(args.pdf),
         "pdf_pages": actual_pages,
         "expected_pages": expected,
+        "logical_source_pages": logical_pages,
+        "effective_lines": effective_lines,
+        "density": {"quota": quota, "nonfinal_short_pages": short_pages,
+                     "status": "pass" if not short_pages else "fail"},
         "rendered_pages": len(rendered),
         "conversion": {"engine": "Direct PDF (ReportLab)", "label": "direct-pdf",
                        "status": "pass" if not issues else "fail",

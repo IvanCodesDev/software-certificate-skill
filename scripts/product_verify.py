@@ -42,6 +42,33 @@ def toc_metrics(path: Path) -> dict[str, Any]:
     }
 
 
+def backend_side_coverage(provenance: dict[str, Any]) -> tuple[bool, str]:
+    """Every filing volume of a both-sided corpus must show backend source.
+
+    Only the first/last 30 pages are filed for large corpora, so backend
+    files can silently drop out of the delivered pages even when selected.
+    Applies to analyzer-confirmed fullstack projects AND corpora the
+    selector balanced because both sides were detected in the repository.
+    """
+    sides = {item.get("path"): item.get("side") for item in provenance.get("file_decisions", [])}
+    file_records = provenance.get("files", [])
+    composed_backend = sum(1 for item in file_records if sides.get(item.get("path")) == "backend")
+    if not composed_backend:
+        return False, "项目含后端实现，但代码材料未纳入任何后端源文件；须重新选择源码"
+    missing: list[str] = []
+    for name, group in provenance.get("filing_groups", {}).items():
+        first = group.get("first_output_line") or 0
+        last = group.get("last_output_line") or 0
+        volume_sides = {sides.get(item.get("path")) for item in file_records
+                        if item.get("output_end_line", 0) >= first and item.get("output_start_line", 0) <= last}
+        if "backend" not in volume_sides:
+            missing.append(name)
+    if missing:
+        return False, ("以下交存卷不含后端源码：" + "、".join(sorted(missing))
+                       + "；须调整源码混排后重新生成")
+    return True, f"{composed_backend}个后端源文件已纳入，前后交存卷均含后端实现"
+
+
 def screenshot_release_check(index_path: Path, data: dict[str, Any]) -> tuple[bool, str]:
     mode, state = data.get("mode", "unknown"), data.get("state", "unknown")
     captures = data.get("captures", [])
@@ -171,6 +198,36 @@ def main() -> int:
                    front.get("logical_source_pages") == list(range(1, 31)) and \
                    back.get("logical_source_pages", [])[-1:] == [provenance.get("full_page_count")]
     checks.append(check("代码页数与前后卷连续性", group_ok, f"总逻辑页{provenance.get('full_page_count')}；分卷{list(groups)}"))
+    # Reviewers count effective source lines — a wrapped long line is still
+    # one line. Every page but the last must carry the full quota.
+    page_meta = provenance.get("pages", [])
+    quota = int(provenance.get("lines_per_page", 50))
+    effective = [int(item.get("effective_lines", item.get("line_count", 0))) for item in page_meta]
+    short_pages = [index + 1 for index, value in enumerate(effective[:-1]) if value < quota]
+    dense_ok = bool(effective) and not short_pages
+    checks.append(check("代码每页有效行数", dense_ok,
+                        f"每页{quota}条有效源码行；末页{effective[-1] if effective else 0}条（末页例外）"
+                        if dense_ok else f"不足{quota}条的页：{short_pages[:12]}"))
+    # A frontend-only repository must not present itself as a full system:
+    # the form has to acknowledge the external backend it depends on.
+    architecture = str(provenance.get("selection_policy", {}).get("architecture_scope", ""))
+    side_balance = provenance.get("selection_policy", {}).get("side_balance")
+    if architecture == "frontend_only":
+        described = " ".join(str(business.get(key, "")) for key in
+                             ("runtime_support", "runtime_platform", "main_functions",
+                              "technical_features", "software_purpose"))
+        acknowledged = bool(re.search(r"后端|服务端|服务器|接口|API", described))
+        checks.append(check("申请范围与源码架构一致", acknowledged,
+                            "纯前端仓库：材料仅含前端源码，申请表已注明需配合后端/接口服务" if acknowledged
+                            else "纯前端仓库，但申请表未注明依赖后端/接口服务，申请范围存在误导风险"))
+    elif architecture == "fullstack" or side_balance:
+        # Covers analyzer-confirmed fullstack AND the selector's fail-safe
+        # balancing for unclear scopes, so a misread scope can never ship
+        # frontend-only code materials for a repository holding a backend.
+        covered, coverage_detail = backend_side_coverage(provenance)
+        checks.append(check("申请范围与源码架构一致", covered, coverage_detail))
+    elif architecture and architecture != "unclassified":
+        checks.append(check("申请范围与源码架构一致", True, f"架构范围：{architecture}"))
     evidence_ok = bool(business.get("capabilities")) and all(item.get("evidence_ids") for item in business.get("capabilities", []))
     checks.append(check("操作手册业务证据", evidence_ok, f"已确认功能{len(business.get('capabilities', []))}项"))
     manual_quality = manual_content.get("content_quality", {})

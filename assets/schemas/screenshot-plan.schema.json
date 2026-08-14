@@ -6,6 +6,11 @@
   "required": ["schema_version", "base_url", "captures"],
   "properties": {
     "schema_version": {"const": "1.0"},
+    "managed_by": {"const": "product_workflow"},
+    "input_sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+    "mode": {"enum": ["chrome_devtools", "computer_use", "user_supplied", "skip"]},
+    "capture_policy": {"enum": ["required", "draft_allowed"]},
+    "forbidden_markers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
     "base_url": {"type": "string", "minLength": 1},
     "output_dir": {"type": "string"},
     "default_timeout_ms": {"type": "integer", "minimum": 1000},
@@ -85,6 +90,7 @@
           "full_page": {"type": "boolean"},
           "hide": {"type": "array", "items": {"type": "string"}},
           "mask": {"type": "array", "items": {"type": "string"}},
+          "forbidden_markers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
           "mask_color": {"type": "string"},
           "allow_duplicate": {"type": "boolean"},
           "quality": {"type": "object"}

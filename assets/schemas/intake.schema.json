@@ -40,6 +40,21 @@
     },
     "ownership_notes": {"type": "string"},
     "screenshot_mode": {"enum": ["chrome_devtools", "computer_use", "user_supplied", "skip"]},
+    "screenshot_policy": {"enum": ["required", "draft_allowed"], "default": "required"},
+    "screenshot_base_url": {"type": "string"},
+    "screenshot_server": {
+      "type": "object",
+      "properties": {
+        "command": {"type": "string"},
+        "cwd": {"type": "string"},
+        "health_url": {"type": "string"},
+        "startup_timeout_seconds": {"type": "number", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "screenshot_forbidden_markers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "screenshot_build_fingerprint": {"type": "string"},
+    "source_forbidden_markers": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
     "confirmed_by": {"type": "string"},
     "confirmed_at": {"type": "string"}
   },

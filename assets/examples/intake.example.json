@@ -16,6 +16,17 @@
   "rights_scope": {"type": "all", "detail": ""},
   "ownership_notes": "",
   "screenshot_mode": "chrome_devtools",
+  "screenshot_policy": "required",
+  "screenshot_base_url": "",
+  "screenshot_server": {
+    "command": "",
+    "cwd": "",
+    "health_url": "",
+    "startup_timeout_seconds": 120
+  },
+  "screenshot_forbidden_markers": [],
+  "screenshot_build_fingerprint": "",
+  "source_forbidden_markers": [],
   "confirmed_by": "",
   "confirmed_at": ""
 }

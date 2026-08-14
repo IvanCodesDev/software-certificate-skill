@@ -20,7 +20,8 @@ from build_manual import add_blocks
 from common import sha256_file
 from convert_document import ConversionFailure, run_isolated
 from generate_application_form import compress
-from generate_manual_content import capability_blocks, content_quality, effective_prerequisites
+from generate_manual_content import (capability_blocks, capability_pages, content_quality,
+                                     effective_prerequisites)
 from product_verify import screenshot_release_check
 
 
@@ -209,6 +210,31 @@ class QualityGateTests(unittest.TestCase):
             index = json.loads(report.read_text(encoding="utf-8"))
             self.assertEqual(index["state"], "captured")
             self.assertEqual(index["captures"][0]["id"], "planned-core")
+
+    def test_continuation_page_title_is_a_readable_heading(self):
+        """A detail page title must not chain two "与" clauses together."""
+        business = {"target_users": "业务人员"}
+        capability = {
+            "id": "cap-order", "name": "订单确认与提交", "operation_type": "approval",
+            "purpose": "把勾选商品汇总为待付款订单", "actor": "已登录消费者",
+            "entry": "订单确认页 /toTrade", "visible_elements": "地址列表、商品清单与提交按钮",
+            "steps": ["选择收货地址", "点击提交订单", "核对生成的订单号"],
+            "result_fields": ["订单号", "应付总额"], "state_changes": ["订单状态置为待付款"],
+            "error_cases": [{"case": "交易码校验不通过", "feedback": "跳转下单失败页"}],
+            "success_feedback": "页面跳转到支付页并显示订单号",
+            "error_feedback": "进入下单失败页且订单不写入",
+            "evidence_ids": ["FILE-order"],
+            "manual_titles": {"procedure": "确认订单与提交",
+                              "detail": "交易码校验与价格复核规则",
+                              "exception": "重复提交与价格变动"},
+        }
+        pages, _, _ = capability_pages(capability, business, 8, {}, 1, True)
+        detail = next(page for page in pages if page.get("subpage_kind") == "detail")
+        self.assertEqual(detail["title"], "8.1 交易码校验与价格复核规则")
+        self.assertLessEqual(detail["title"].count("与"), 2, detail["title"])
+        subheadings = [block["text"] for block in detail["blocks"]
+                       if block.get("type") == "subheading"]
+        self.assertIn("重复提交与价格变动", subheadings)
 
     def test_manual_profiles_differ_and_repetition_is_detected(self):
         business = {"target_users": "业务人员"}

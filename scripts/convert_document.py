@@ -312,22 +312,54 @@ try {
         return {"engine": "Microsoft Word", **diagnostic}
 
 
+def render_with_pymupdf(pdf: Path, output_dir: Path, dpi: int, timeout: float,
+                        diagnostics_dir: Path) -> list[Path]:
+    """In-process page rasteriser used when no Poppler binary is installed.
+
+    The document runtime already ships PyMuPDF, so requiring an external
+    Poppler build would block per-page verification — and therefore the
+    release gate — on environments that can otherwise produce every file.
+    """
+    try:
+        import pymupdf
+    except ImportError as exc:
+        raise ConversionFailure("未找到PDF逐页渲染器（Poppler 与 PyMuPDF 均不可用）",
+                                {"engine": "PyMuPDF", "status": "unavailable"}) from exc
+    started = time.monotonic()
+    images: list[Path] = []
+    with pymupdf.open(pdf) as document:
+        for number in range(1, document.page_count + 1):
+            if time.monotonic() - started > timeout:
+                raise ConversionFailure(f"PyMuPDF逐页渲染超过时限{timeout:.1f}秒",
+                                        {"engine": "PyMuPDF", "status": "timeout",
+                                         "rendered_pages": len(images)})
+            target = output_dir / f"page-{number:04d}.png"
+            document[number - 1].get_pixmap(dpi=dpi).save(target)
+            images.append(target)
+    save_json(diagnostics_dir / "pdf-render.diagnostic.json", {
+        "label": "pdf-render", "engine": "PyMuPDF", "status": "pass",
+        "pages": len(images), "dpi": dpi,
+        "elapsed_seconds": round(time.monotonic() - started, 3),
+    })
+    return images
+
+
 def render_pdf(pdf: Path, output_dir: Path, dpi: int, timeout: float,
-               diagnostics_dir: Path) -> list[Path]:
+               diagnostics_dir: Path) -> tuple[list[Path], str]:
     bundled = Path.home() / ".cache/codex-runtimes/codex-primary-runtime/dependencies/native/poppler/Library/bin"
     renderer = first_executable([str(bundled / "pdftoppm.exe"), str(bundled / "pdftocairo.exe"),
                                  "pdftoppm", "pdftocairo"])
-    if not renderer:
-        raise ConversionFailure("未找到PDF逐页渲染器（pdftoppm/pdftocairo）",
-                                {"engine": "Poppler", "status": "unavailable"})
     if output_dir.exists():
         for old in output_dir.glob("page-*.png"):
             old.unlink()
     output_dir.mkdir(parents=True, exist_ok=True)
+    diagnostics_dir.mkdir(parents=True, exist_ok=True)
+    if not renderer:
+        return render_with_pymupdf(pdf, output_dir, dpi, timeout, diagnostics_dir), "PyMuPDF"
     prefix = output_dir / "page"
     run_isolated([renderer, "-png", "-r", str(dpi), str(pdf), str(prefix)],
                  timeout, diagnostics_dir, "pdf-render")
-    return sorted(output_dir.glob("page-*.png"))
+    return sorted(output_dir.glob("page-*.png")), "Poppler"
 
 
 def inspect_rendered(images: list[Path]) -> list[dict[str, Any]]:
@@ -416,8 +448,9 @@ def main() -> int:
         return 4
     count = pdf_pages(pdf)
     render_diagnostic: dict[str, Any] | None = None
+    render_engine = "skipped"
     try:
-        images = [] if args.no_render else render_pdf(
+        images, render_engine = ([], "skipped") if args.no_render else render_pdf(
             pdf, (args.render_dir or pdf.parent / f"{pdf.stem}-逐页渲染").resolve(),
             args.dpi, args.render_timeout_seconds, diagnostics_dir,
         )
@@ -443,7 +476,7 @@ def main() -> int:
         "pdf_pages": count, "expected_pages": args.expected_pages, "rendered_pages": len(images),
         "conversion": conversion, "conversion_attempts": attempts,
         "render": {"status": "skipped" if args.no_render else ("fail" if render_diagnostic else "pass"),
-                   "diagnostic": render_diagnostic},
+                   "engine": render_engine, "diagnostic": render_diagnostic},
         "diagnostics_dir": str(diagnostics_dir), "rendered": rendered, "issues": issues,
         "status": "pass" if not issues else "fail",
     }

@@ -1,4 +1,6 @@
 interface:
   display_name: "软件著作权申请资料生成器"
   short_description: "一次填写基础事实，自动生成可追溯的申请表、手册、代码及真实DOCX/PDF"
+  icon_small: "./assets/soft-copyright-skill-icon-small.png"
+  icon_large: "./assets/soft-copyright-skill-icon.png"
   default_prompt: "使用 $software-certificate-skill 为当前真实项目生成完整的软件著作权申请资料；集中收集一次必要事实并推荐截图方式，其余分析、写作、排版、验证、修复和打包自动完成。"

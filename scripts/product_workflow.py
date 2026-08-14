@@ -12,6 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from common import load_json, now_iso, save_json, sha256_file, utf8_subprocess_env
 from product_model import (ProductPaths, copy_changed, find_slots, hash_inputs, load_state,
@@ -107,10 +108,12 @@ def write_screenshot_card(paths: ProductPaths, analysis: dict[str, Any]) -> tupl
 
 推荐：**{labels.get(recommended, recommended)}**（依据当前项目交互形态）。最终选择记录在一次性基础信息表中。
 
+正式资料模式默认要求截图全部完成；只有明确把 `screenshot_policy` 设为 `draft_allowed` 时，才允许暂时跳过并生成带占位图的草稿。
+
 1. **Chrome DevTools**：浏览器 Web 系统；自动启动/连接、断言页面、操作并保存截图。
 2. **Computer Use**：桌面端、Electron、模拟器或复杂交互；按当前应用状态操作并取证。
 3. **用户自行截图**：验证码、真机或敏感数据场景；Agent 将用户选定图片导入临时运行区后自动检查和匹配。
-4. **暂时跳过截图**：先生成带明显预留位置的文字版，补图时只重建手册和报告。
+4. **暂时跳过截图**：仅限草稿模式；正式资料不会继续生成。
 """, encoding="utf-8")
     task = paths.work / "截图任务清单.md"
     capabilities = analysis.get("capabilities", [])
@@ -124,6 +127,98 @@ def write_screenshot_card(paths: ProductPaths, analysis: dict[str, Any]) -> tupl
     return card, task
 
 
+def screenshot_policy(facts: dict[str, Any]) -> str:
+    """Return the capture policy, defaulting safely to formal-required."""
+    return facts.get("screenshot_policy", "required") if facts.get("screenshot_policy") in {
+        "required", "draft_allowed"
+    } else "required"
+
+
+def screenshot_plan_fingerprint(paths: ProductPaths, facts: dict[str, Any],
+                                business_path: Path) -> str:
+    """Invalidate plans when business, source, URL, mode or server changes."""
+    build_artifacts: list[tuple[str, int, str]] = []
+    for pattern in ("target/*.jar", "target/*.war", "build/libs/*.jar", "build/*.exe", "dist/*.exe"):
+        for artifact in sorted(paths.project.glob(pattern)):
+            if artifact.is_file():
+                build_artifacts.append((artifact.relative_to(paths.project).as_posix(),
+                                        artifact.stat().st_size, sha256_file(artifact)))
+    extra = {
+        "mode": facts.get("screenshot_mode"),
+        "policy": screenshot_policy(facts),
+        "base_url": facts.get("screenshot_base_url", ""),
+        "server": facts.get("screenshot_server", {}),
+        "build_fingerprint": facts.get("screenshot_build_fingerprint", ""),
+        "build_artifacts": build_artifacts,
+    }
+    return hash_inputs([business_path, paths.project], extra)
+
+
+def archive_stale_screenshot_state(paths: ProductPaths) -> Path | None:
+    """Move stale evidence aside instead of silently reusing it or deleting it."""
+    items = [paths.work / "screenshot-plan.json", paths.work / "screenshot-index.json",
+             paths.work / "screenshots"]
+    existing = [item for item in items if item.exists()]
+    if not existing:
+        return None
+    archive = paths.work / "stale-screenshot-runs" / now_iso().replace(":", "").replace("+", "_")
+    archive.mkdir(parents=True, exist_ok=True)
+    for item in existing:
+        shutil.move(str(item), str(archive / item.name))
+    return archive
+
+
+def build_screenshot_plan(facts: dict[str, Any], business: dict[str, Any],
+                          fingerprint: str, previous: dict[str, Any] | None = None) -> dict[str, Any]:
+    captures = []
+    for position, capability in enumerate(business.get("capabilities", []), 1):
+        shot_ids = capability.get("screenshot_ids") or [f"capability-{position:03d}"]
+        for shot in shot_ids:
+            captures.append({
+                "id": shot, "title": capability.get("name", shot),
+                "role": capability.get("actor", business.get("target_users")),
+                "evidence_ids": capability.get("evidence_ids", []),
+                "chapter": capability.get("name", ""),
+                "route": capability.get("route") or (capability.get("entry") if str(capability.get("entry", "")).startswith("/") else None),
+            })
+    base_url = facts.get("screenshot_base_url", "")
+    server = dict(facts.get("screenshot_server") or {})
+    health_url = server.get("health_url")
+    if not base_url and health_url:
+        parsed = urlsplit(str(health_url))
+        if parsed.scheme and parsed.netloc:
+            base_url = f"{parsed.scheme}://{parsed.netloc}"
+    plan = {
+        "schema_version": "1.0", "managed_by": "product_workflow",
+        "input_sha256": fingerprint, "mode": facts.get("screenshot_mode"),
+        "capture_policy": screenshot_policy(facts), "base_url": base_url,
+        "captures": captures,
+    }
+    if server:
+        plan["server"] = {key: value for key, value in server.items() if value not in (None, "")}
+    forbidden_markers = [str(item) for item in facts.get("screenshot_forbidden_markers", []) if str(item).strip()]
+    if forbidden_markers:
+        plan["forbidden_markers"] = sorted(set(forbidden_markers))
+    # Preserve a user's browser/setup/quality configuration across a business refresh.
+    if previous:
+        for key in ("default_timeout_ms", "browser", "setup", "quality"):
+            if key in previous:
+                plan[key] = previous[key]
+        if "screenshot_server" not in facts and previous.get("server"):
+            plan["server"] = previous["server"]
+        if not plan.get("base_url") and previous.get("base_url"):
+            plan["base_url"] = previous["base_url"]
+    return plan
+
+
+def stamp_screenshot_index(path: Path, policy: str, fingerprint: str) -> dict[str, Any]:
+    data = load_json(path)
+    data["capture_policy"] = policy
+    data["plan_input_sha256"] = fingerprint
+    save_json(path, data)
+    return data
+
+
 def prepare(paths: ProductPaths) -> int:
     state = load_state(paths)
     progress("正在检查运行环境")
@@ -134,7 +229,8 @@ def prepare(paths: ProductPaths) -> int:
                  f"规则快照：{RULES_SNAPSHOT}")
     progress("正在分析项目")
     evidence, analysis = paths.work / "evidence-graph.json", paths.work / "project-analysis.json"
-    scan_hash = hash_inputs([paths.project], {"scanner": sha256_file(SCRIPT_DIR / "scan_project.py")})
+    scan_hash = hash_inputs([paths.project], {"scanner": sha256_file(SCRIPT_DIR / "scan_project.py"),
+                                              "analyzer": sha256_file(SCRIPT_DIR / "analyze_project.py")})
     if not stage_is_current(state, "project_analysis", scan_hash):
         run_script("scan_project.py", ["--project", str(paths.project), "--output", str(evidence)])
         run_script("analyze_project.py", ["--project", str(paths.project), "--evidence", str(evidence), "--output", str(analysis)])
@@ -175,28 +271,42 @@ def screenshot_index(paths: ProductPaths, facts: dict[str, Any], business_path: 
     index = paths.work / "screenshot-index.json"
     plan = paths.work / "screenshot-plan.json"
     business = load_json(business_path)
-    if not plan.exists():
-        captures = []
-        for position, capability in enumerate(business.get("capabilities", []), 1):
-            shot_ids = capability.get("screenshot_ids") or [f"capability-{position:03d}"]
-            for shot in shot_ids:
-                captures.append({
-                    "id": shot, "title": capability.get("name", shot),
-                    "role": capability.get("actor", business.get("target_users")),
-                    "evidence_ids": capability.get("evidence_ids", []),
-                    "chapter": capability.get("name", ""),
-                    "route": capability.get("route") or (capability.get("entry") if str(capability.get("entry", "")).startswith("/") else None),
-                })
-        save_json(plan, {"schema_version": "1.0", "mode": mode,
-                         "base_url": facts.get("screenshot_base_url", ""), "captures": captures})
+    policy = screenshot_policy(facts)
+    fingerprint = screenshot_plan_fingerprint(paths, facts, business_path)
+    previous: dict[str, Any] | None = None
+    rebuild = not plan.exists()
+    if plan.exists():
+        try:
+            previous = load_json(plan)
+        except Exception:
+            previous = None
+        old_fingerprint = previous.get("input_sha256") if previous else None
+        # Plans from older releases had no fingerprint. Treat them as stale
+        # once, while preserving their browser/setup/server settings below.
+        if not previous or old_fingerprint != fingerprint:
+            archive_stale_screenshot_state(paths)
+            rebuild = True
+    if rebuild:
+        save_json(plan, build_screenshot_plan(facts, business, fingerprint, previous))
+    plan_data = load_json(plan)
     if mode == "user_supplied":
         run_script("ingest_user_screenshots.py", ["--source", str(paths.screenshots), "--output", str(paths.work / "screenshots"),
                    "--plan", str(plan), "--report", str(index)], {0, 3})
-        return index, load_json(index).get("state", "failed")
+        data = stamp_screenshot_index(index, policy, fingerprint)
+        return index, data.get("state", "failed")
     elif mode == "skip":
+        if policy == "required":
+            save_json(index, {"schema_version": "1.0", "generated_at": now_iso(), "mode": mode,
+                              "state": "awaiting_capture", "capture_policy": policy,
+                              "blocking_reason": "正式资料模式禁止跳过截图；请完成截图后继续",
+                              "captures": [], "plan": str(plan), "plan_input_sha256": fingerprint,
+                              "summary": {"requested": len(plan_data.get("captures", [])), "passed": 0,
+                                          "errors": 1, "quality_warnings": 0, "missing_planned": len(plan_data.get("captures", []))}})
+            return index, "awaiting_capture"
         save_json(index, {"schema_version": "1.0", "generated_at": now_iso(), "mode": "skip",
-                          "state": "skipped_by_user", "draft_allowed": True, "captures": [],
-                          "summary": {"requested": len(load_json(plan).get("captures", [])), "passed": 0,
+                          "state": "skipped_by_user", "capture_policy": policy, "draft_allowed": True, "captures": [],
+                          "plan_input_sha256": fingerprint,
+                          "summary": {"requested": len(plan_data.get("captures", [])), "passed": 0,
                                       "errors": 0, "quality_warnings": 0, "missing_planned": 0}})
         return index, "skipped_by_user"
     elif mode == "chrome_devtools":
@@ -209,7 +319,8 @@ def screenshot_index(paths: ProductPaths, facts: dict[str, Any], business_path: 
                        "--evidence-source", str(paths.work / "evidence-graph.json"),
                        "--evidence-output", str(paths.work / "evidence-graph.with-screenshots.json")], {0, 2, 3}, 600)
             shutil.copy2(capture_dir / "screenshot-index.json", index)
-            return index, load_json(index).get("state", "failed")
+            data = stamp_screenshot_index(index, policy, fingerprint)
+            return index, data.get("state", "failed")
     elif mode == "computer_use":
         if index.exists() and load_json(index).get("state") == "captured":
             return index, "captured"
@@ -219,13 +330,26 @@ def screenshot_index(paths: ProductPaths, facts: dict[str, Any], business_path: 
                        "--output", str(paths.work / "screenshots"), "--report", str(index),
                        "--evidence-source", str(paths.work / "evidence-graph.json"),
                        "--evidence-output", str(paths.work / "evidence-graph.with-screenshots.json")], {0, 2})
-            return index, load_json(index).get("state", "failed")
+            data = stamp_screenshot_index(index, policy, fingerprint)
+            return index, data.get("state", "failed")
     plan_count = len(load_json(plan).get("captures", []))
     save_json(index, {"schema_version": "1.0", "generated_at": now_iso(), "mode": mode,
-                      "state": "awaiting_capture", "captures": [], "plan": str(plan),
+                      "capture_policy": policy, "state": "awaiting_capture", "captures": [], "plan": str(plan),
+                      "plan_input_sha256": fingerprint,
                       "summary": {"requested": plan_count, "passed": 0, "errors": 1,
                                   "quality_warnings": 0, "missing_planned": plan_count}})
     return index, "awaiting_capture"
+
+
+def provenance_density(provenance: dict[str, Any]) -> tuple[bool, str]:
+    """Check effective source lines before spending time rendering documents."""
+    pages = provenance.get("pages", [])
+    quota = int(provenance.get("lines_per_page", 50))
+    effective = [int(item.get("effective_lines", item.get("line_count", 0))) for item in pages]
+    short = [index + 1 for index, value in enumerate(effective[:-1]) if value < quota]
+    if short:
+        return False, f"非末页有效源码行不足{quota}行：{short[:12]}"
+    return bool(effective), f"非末页均达到{quota}行；末页{effective[-1] if effective else 0}行（末页例外）"
 
 
 def markdown_report(report: dict[str, Any]) -> str:
@@ -240,8 +364,13 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
     state = load_state(paths)
     analysis = paths.work / "project-analysis.json"
     evidence = paths.work / "evidence-graph.json"
-    if not analysis.exists():
+    # Re-analyse when the project OR the scanner/analyzer scripts changed:
+    # a stale analysis would silently drop newly added inference fields.
+    scan_hash = hash_inputs([paths.project], {"scanner": sha256_file(SCRIPT_DIR / "scan_project.py"),
+                                              "analyzer": sha256_file(SCRIPT_DIR / "analyze_project.py")})
+    if not analysis.exists() or not stage_is_current(state, "project_analysis", scan_hash):
         prepare(paths)
+        state = load_state(paths)
     intake = (intake_path or paths.work / "一次性基础信息表.json").resolve()
     business = (business_path or paths.work / "business-understanding.json").resolve()
     errors = validate_schema(intake, SKILL_ROOT / "assets/schemas/intake.schema.json")
@@ -259,8 +388,12 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
 
     progress("正在选择真实源码")
     manifest, selection_report = paths.work / "source-manifest.json", paths.work / "source-selection-report.json"
-    selected = run_script("auto_select_source.py", ["--project", str(paths.project), "--manifest", str(manifest),
-                          "--report", str(selection_report)], {0, 3})
+    source_args = ["--project", str(paths.project), "--manifest", str(manifest),
+                   "--report", str(selection_report), "--analysis", str(analysis)]
+    for marker in facts.get("source_forbidden_markers", []):
+        if str(marker).strip():
+            source_args += ["--forbidden-marker", str(marker)]
+    selected = run_script("auto_select_source.py", source_args, {0, 3})
     if selected.returncode == 3:
         pending = paths.quality / "待确认事项清单.md"
         scopes = load_json(selection_report).get("scope_candidates", [])
@@ -273,6 +406,19 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
     placeholders = screenshot_state != "captured"
     record_stage(paths, state, "screenshots", "complete" if not placeholders else screenshot_state,
                  hash_inputs([screenshots, business]), [screenshots])
+    if placeholders and screenshot_policy(facts) == "required":
+        pending = paths.quality / "待确认事项清单.md"
+        pending.write_text(
+            "# 待确认事项清单\n\n"
+            "- 正式资料模式要求先完成全部截图，当前状态为："
+            f"{screenshot_state}。请检查截图计划、服务地址、启动命令、健康检查和登录步骤后重新运行。\n",
+            encoding="utf-8")
+        record_stage(paths, state, "release", "blocked_by_screenshots",
+                     hash_inputs([screenshots, business]), [screenshots, pending],
+                     "正式资料模式禁止在截图缺失时继续生成手册和代码材料")
+        progress("正式资料需要先完成截图，当前流程已暂停")
+        print(f"SCREENSHOT_REQUIRED={pending}")
+        return 2
 
     progress("正在生成操作手册")
     manual_json, manual_docx = paths.work / "manual-content.json", paths.work / "manual.docx"
@@ -291,7 +437,9 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
     # Width/font shrink per retry while the exact leading keeps 50 lines
     # filling the A4 page body (~707.5pt), so no volume ships with a large
     # blank band at the bottom of every page.
-    configurations = [(76, 10.0, 14.1), (74, 9.5, 14.05), (72, 9.0, 14.0)]
+    # Wider columns mean fewer wrapped rows, which keeps 50 effective source
+    # lines inside one page grid. Retries narrow the text and shrink the font.
+    configurations = [(87, 9.0, None), (83, 8.5, None), (78, 8.0, None)]
     provenance = code_dir / "source-provenance.json"
     render_dir = paths.work / "render-reports"
     render_dir.mkdir(parents=True, exist_ok=True)
@@ -304,10 +452,19 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
     converted: list[tuple[Path, Path, Path]] = []
     last_error = None
     for width, font, spacing in configurations:
-        run_script("compose_code.py", ["--project", str(paths.project), "--manifest", str(manifest),
-                   "--facts", str(paths.work / "application-facts.json"), "--output-dir", str(code_dir),
-                   "--max-chars", str(width), "--font-size", str(font), "--line-spacing", str(spacing)])
+        compose_args = ["--project", str(paths.project), "--manifest", str(manifest),
+                        "--facts", str(paths.work / "application-facts.json"),
+                        "--output-dir", str(code_dir),
+                        "--max-chars", str(width), "--font-size", str(font)]
+        if spacing is not None:
+            compose_args += ["--line-spacing", str(spacing)]
+        run_script("compose_code.py", compose_args)
         prov = load_json(provenance)
+        density_ok, density_detail = provenance_density(prov)
+        if not density_ok:
+            last_error = RuntimeError(f"代码分页密度检查失败：{density_detail}")
+            progress("代码页有效行不足，正在尝试下一种排版配置")
+            continue
         formal_specs = []
         if "all" in prov["filing_groups"]:
             formal_specs.append((code_dir / "source-all.docx", f"{software}-代码(全部)",
@@ -379,6 +536,30 @@ def generate(paths: ProductPaths, intake_path: Path | None, business_path: Path 
     pending_items = []
     if placeholders:
         pending_items.append("截图尚未完整获取：当前操作手册含可见截图预留位置；补图后仅重建手册和相关报告。")
+    selection_data = load_json(selection_report)
+    if selection_data.get("architecture_scope") == "frontend_only":
+        pending_items.append(
+            "项目识别为纯前端仓库：交存源码仅含前端实现，后端为独立系统。"
+            "请确认软件名称与申请范围一致；申请表运行支撑环境已按“需配合后端接口服务”口径核验。")
+    elif selection_data.get("architecture_scope") == "fullstack":
+        sides = selection_data.get("side_distribution") or {}
+        pending_items.append(
+            f"项目识别为全栈仓库：源码材料已同时纳入前端与后端实现"
+            f"（后端 {sides.get('backend_files', 0)} 个文件 / {sides.get('backend_lines', 0)} 行，"
+            "并按行数占比混排以保证前后交存卷都包含后端代码）。"
+            "请确认全部后端代码归属于本申请软件；若后端另行单独登记，请改用纯前端口径重新生成。")
+    elif selection_data.get("side_distribution"):
+        sides = selection_data["side_distribution"]
+        pending_items.append(
+            f"架构范围未能明确判定，但仓库同时存在前端与后端实质源码，材料已按行数占比混排"
+            f"（后端 {sides.get('backend_files', 0)} 个文件 / {sides.get('backend_lines', 0)} 行）。"
+            "请确认前后端代码均归属于本申请软件。")
+    ownership = selection_data.get("ownership_review", [])
+    if ownership:
+        listed = "、".join(item["path"] for item in ownership[:8])
+        pending_items.append(
+            f"以下 {len(ownership)} 个文件疑似后端/异构实现，已自动排除出代码材料，请确认归属："
+            f"{listed}{'等' if len(ownership) > 8 else ''}。确属本申请软件时在源码清单中恢复后重新生成。")
     (paths.quality / "待确认事项清单.md").write_text("# 待确认事项清单\n\n" +
         ("\n".join(f"- {item}" for item in pending_items) if pending_items else "无必须人工确认的问题。") + "\n", encoding="utf-8")
     (paths.quality / "生成报告.md").write_text(f"""# 生成报告

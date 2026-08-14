@@ -465,7 +465,8 @@ def capability_pages(capability: dict[str, Any], business: dict[str, Any], chapt
 
     expanded_detail = profile in {"approval", "analysis", "monitoring"}
     if expanded_detail:
-        detail_blocks: list[dict[str, Any]] = [result_table, exception_table,
+        detail_blocks: list[dict[str, Any]] = [result_table,
+            {"type": "subheading", "text": exception_title}, exception_table,
             {"type": "note", "title": "复核闭环",
              "text": f"处理“{capability['name']}”的异常后，应重新执行关键步骤，并核对{joined(result_fields, capability['success_feedback'])}。"}]
         procedure_blocks = procedure_core
@@ -491,7 +492,12 @@ def capability_pages(capability: dict[str, Any], business: dict[str, Any], chapt
          "capability_key": key, "evidence_ids": evidence, "blocks": combined_blocks},
     ]
     if expanded_detail:
-        pages.append({"kind": "section", "title": f"{chapter}.1 {detail_title}与{exception_title}", "level": 2,
+        # The continuation page carries result verification first and
+        # exceptions second. Concatenating both headings into the page title
+        # produced unreadable chains such as "A与B规则与C与D" whenever either
+        # title already contained "与", so the exception half becomes its own
+        # subheading instead.
+        pages.append({"kind": "section", "title": f"{chapter}.1 {detail_title}", "level": 2,
                       "lead": f"完成{capability['name']}后重点核对{joined(result_fields, capability['success_feedback'])}，"
                               f"异常反馈为{capability.get('error_feedback', '以页面提示为准')}。",
                       "operation_profile": profile, "subpage_kind": "detail",

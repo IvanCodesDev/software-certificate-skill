@@ -48,3 +48,15 @@ Desktop.ini
 
 # Local release verification and rollback artifacts
 .release-audit/
+
+# KC-Chat 运行时产物（插件自动生成，请勿入库）
+.cursor/mcp.json
+.cursor/kc-mcp/
+.cursor/kc-mcp-messages/
+.cursor/kc-chat-exports/
+.cursor/rules/kc-chat.mdc
+.codex/
+
+# 本地服务/数据库运行时产物
+data/
+dump.rdb

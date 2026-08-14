@@ -469,6 +469,14 @@ def run_capture(plan: dict[str, Any], plan_path: Path, output: Path,
                             item.evaluate("(el, value) => el.setAttribute('style', value)", original)
                     metrics = image_metrics(path)
                     findings = quality_findings(metrics, {**quality, **capture.get("quality", {})})
+                    forbidden_markers = list(plan.get("forbidden_markers", [])) + list(capture.get("forbidden_markers", []))
+                    if forbidden_markers:
+                        body_text = page.locator("body").inner_text(timeout=default_timeout)
+                        folded = body_text.casefold()
+                        for marker in forbidden_markers:
+                            marker_text = str(marker).strip()
+                            if marker_text and marker_text.casefold() in folded:
+                                findings.append({"code": "forbidden_dom_marker", "marker": marker_text})
                     for prior in previous:
                         same_size = (metrics["width"], metrics["height"]) == (
                             prior["metrics"]["width"], prior["metrics"]["height"]

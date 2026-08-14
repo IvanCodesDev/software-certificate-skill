@@ -83,10 +83,11 @@ def source_metrics(path: Path | None) -> dict:
             issues.append("under_60_selection_incorrect")
     else:
         expected = list(range(1, 31)) + list(range(full_pages - 29, full_pages + 1))
-        if selection != "first_30_and_last_30" or selected != expected:
+        if selection not in {"first_30_and_last_30", "first_30_and_last_30_separate_volumes"} or selected != expected:
             issues.append("front_back_30_selection_incorrect")
     pages = data.get("pages", [])
-    if any(p.get("line_count", 0) < 50 for p in pages[:-1]):
+    effective_lines = [int(p.get("effective_lines", p.get("line_count", 0))) for p in pages]
+    if any(value < int(data.get("lines_per_page", 50)) for value in effective_lines[:-1]):
         issues.append("nonfinal_source_page_under_50_lines")
     review = data.get("manifest_review", {})
     review_ready = all(review.get(key) for key in (
@@ -104,6 +105,9 @@ def source_metrics(path: Path | None) -> dict:
         "full_pages": full_pages,
         "filing_pages": filing_pages,
         "selection": selection,
+        "effective_line_counts": effective_lines,
+        "density_quota": int(data.get("lines_per_page", 50)),
+        "last_page_effective_lines": effective_lines[-1] if effective_lines else 0,
         "line_mapping_count": len(data.get("line_mapping", [])),
         "review_ready": review_ready,
         "ordered_files_confirmed": data.get("ordered_files_confirmed", False),
@@ -207,7 +211,8 @@ def main() -> int:
     if screenshot_path is None:
         discovered = case / "02-evidence/screenshots/screenshot-index.json"
         screenshot_path = discovered if discovered.exists() else None
-    screenshots = screenshot_metrics(screenshot_path, required=args.require_screenshots)
+    screenshot_required = args.require_screenshots or args.mode == "release" or facts.get("screenshot_policy", "required") == "required"
+    screenshots = screenshot_metrics(screenshot_path, required=screenshot_required)
 
     gates = {
         "facts_confirmed": not facts_slots and bool(facts),

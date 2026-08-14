@@ -1,5 +1,9 @@
 {
   "schema_version": "1.0",
+  "managed_by": "product_workflow",
+  "input_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "mode": "chrome_devtools",
+  "capture_policy": "required",
   "base_url": "http://127.0.0.1:4173",
   "output_dir": "../../02-evidence/screenshots",
   "default_timeout_ms": 15000,

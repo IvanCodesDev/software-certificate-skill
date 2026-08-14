@@ -81,8 +81,10 @@ class DirectCodePdfTests(unittest.TestCase):
                 self.assertIn("process_item", first_page_text)
                 # pypdf splits extracted text at font-run boundaries.
                 compact = first_page_text.replace(" ", "").replace("\n", "")
+                # Unified filing header: name + version, then the page number.
                 self.assertIn("直绘测试系统V1.0", compact)
-                self.assertIn("第1页共4页", compact)
+                self.assertIn("第1页", compact)
+                self.assertNotIn("共", compact.split("value_")[0])
                 digests.append(__import__("hashlib").sha256(pdf.read_bytes()).hexdigest())
             self.assertEqual(digests[0], digests[1], "direct rendering must be byte-stable")
 

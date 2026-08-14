@@ -123,12 +123,13 @@ python scripts/finalize_agent_screenshots.py `
 
 ## 8. 状态与发布语义
 
-- `mode=skip, state=skipped_by_user`：用户明确跳过，只允许带占位符草稿；
+- `screenshot_policy=required`：正式资料默认值；任何缺图、跳过、启动失败、登录失败或断言失败都会在截图阶段暂停后续材料生成；
+- `screenshot_policy=draft_allowed` + `mode=skip, state=skipped_by_user`：用户明确只要草稿，允许带占位符草稿；
 - `state=awaiting_capture`：尚未执行截图，正式发布失败；
 - `state=failed`：截图、质量或收据校验失败，正式发布失败；
 - `state=captured`：计划中的每张图均存在并通过文件、哈希、清晰度、上下文和映射检查。
 
-非 `skip` 模式下，空 `captures` 列表始终失败；不能依赖空列表上的 `all(...)` 得到通过结论。用户自行截图按计划 ID 写回，使手册中的 `screenshot_ids` 可以直接找到对应图片。
+非 `skip` 模式下，空 `captures` 列表始终失败；不能依赖空列表上的 `all(...)` 得到通过结论。截图计划保存 `input_sha256`，由业务清单、源码、地址、模式、服务启动参数和构建指纹组成；指纹变化时旧计划、索引和图片会先归档。用户自行截图按计划 ID 写回，使手册中的 `screenshot_ids` 可以直接找到对应图片。
 
 ## 9. 证据图谱回写
 
