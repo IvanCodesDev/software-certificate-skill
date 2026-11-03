@@ -1,3 +1,5 @@
+[![Try 软著申请资料生成器 on Socialistic](https://socialistic.ai/api/embed/software-certificate-skill-dd06b2?lang=zh)](https://socialistic.ai/zh/skill/software-certificate-skill-dd06b2?utm_source=github&utm_medium=pr&utm_campaign=d3874e35&utm_content=badge)
+
 <p align="center">
   <img width="180"  alt="exec-1908e30b-b18f-440b-bd7f-5c282be37a79" src="https://github.com/user-attachments/assets/61615b6e-9ab8-4a87-a57a-f42c53d0b897" />
 
